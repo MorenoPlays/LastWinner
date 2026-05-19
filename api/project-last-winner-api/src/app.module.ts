@@ -9,6 +9,12 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { jwtConstants } from './auth/jwt/jwtauth.constants';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { GameModule } from './game/game.module';
+import { TournamentModule } from './tournament/tournament.module';
+import { TournamentParticipantModule } from './tournament-participant/tournament-participant.module';
+import { BracketModule } from './bracket/bracket.module';
+import { MatchModule } from './match/match.module';
+import { TournamentMessageModule } from './tournament-message/tournament-message.module';
 
 @Module({
   imports: [
@@ -20,6 +26,12 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     AuthModule,
     UsersModule,
     PrismaModule,
+    GameModule,
+    TournamentModule,
+    TournamentParticipantModule,
+    BracketModule,
+    MatchModule,
+    TournamentMessageModule,
   ],
   controllers: [],
   providers: [
