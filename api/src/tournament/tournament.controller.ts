@@ -10,6 +10,7 @@ import {
 import { TournamentService } from './tournament.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('tournament')
 export class TournamentController {
@@ -20,11 +21,19 @@ export class TournamentController {
     return this.tournamentService.create(createTournamentDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.tournamentService.findAll();
   }
 
+  @Public()
+  @Get('by-game/:gameId')
+  findByGame(@Param('gameId') gameId: string) {
+    return this.tournamentService.findByGameId(gameId);
+  }
+
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.tournamentService.findOne(id);

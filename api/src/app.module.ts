@@ -15,7 +15,8 @@ import { TournamentParticipantModule } from './tournament-participant/tournament
 import { BracketModule } from './bracket/bracket.module';
 import { MatchModule } from './match/match.module';
 import { TournamentMessageModule } from './tournament-message/tournament-message.module';
-
+import {AppController} from "./app.controller"
+import {AppService} from "./app.service"
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -33,8 +34,9 @@ import { TournamentMessageModule } from './tournament-message/tournament-message
     MatchModule,
     TournamentMessageModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
+    AppService,
     JwtStrategy,
     {
       provide: APP_GUARD,

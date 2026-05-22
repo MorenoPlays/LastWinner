@@ -43,4 +43,26 @@ export class UsersService {
     const { passwordHash, ...rest } = user;
     return rest;
   }
+
+  async me(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatarUrl: true,
+        bio: true,
+        country: true,
+        elo: true,
+        wins: true,
+        losses: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return user;
+  }
 }
