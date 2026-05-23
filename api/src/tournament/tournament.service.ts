@@ -1,18 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+
+interface RequestUser {
+  id: string;
+  role: string;
+}
 
 @Injectable()
 export class TournamentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createTournamentDto: CreateTournamentDto) {
-    return this.prisma.tournament.create({ data: createTournamentDto });
+  create(createTournamentDto: CreateTournamentDto, user: RequestUser) {
+    return this.prisma.tournament.create({
+      data: {
+        ...createTournamentDto,
+        organizerId: createTournamentDto.organizerId || user.id,
+      },
+    });
   }
 
   findAll() {
-    return this.prisma.tournament.findMany();
+    return this.prisma.tournament.findMany({
+      include: {
+        organizer: { select: { id: true, username: true } },
+        participants: { select: { id: true, status: true } },
+      },
+    });
   }
 
   findByGameId(gameId: string) {
@@ -20,6 +35,7 @@ export class TournamentService {
       where: { gameId },
       include: {
         organizer: { select: { id: true, username: true } },
+        participants: { select: { id: true, status: true } },
       },
     });
   }
@@ -28,19 +44,34 @@ export class TournamentService {
     const tournament = await this.prisma.tournament.findUnique({
       where: { id },
       include: {
-        participants: true,
         organizer: { select: { id: true, username: true } },
+        participants: {
+          include: {
+            user: { select: { id: true, username: true, email: true } },
+          },
+        },
+        game:true
       },
     });
     if (!tournament) throw new NotFoundException('Tournament not found');
     return tournament;
   }
 
-  update(id: string, updateTournamentDto: UpdateTournamentDto) {
+  async update(id: string, updateTournamentDto: UpdateTournamentDto, user: RequestUser) {
+    const tournament = await this.prisma.tournament.findUnique({ where: { id } });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (user.role !== 'ADMIN' && tournament.organizerId !== user.id) {
+      throw new ForbiddenException('Only the tournament organizer or an admin can update this tournament');
+    }
     return this.prisma.tournament.update({ where: { id }, data: updateTournamentDto });
   }
 
-  remove(id: string) {
+  async remove(id: string, user: RequestUser) {
+    const tournament = await this.prisma.tournament.findUnique({ where: { id } });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (user.role !== 'ADMIN' && tournament.organizerId !== user.id) {
+      throw new ForbiddenException('Only the tournament organizer or an admin can delete this tournament');
+    }
     return this.prisma.tournament.delete({ where: { id } });
   }
 }

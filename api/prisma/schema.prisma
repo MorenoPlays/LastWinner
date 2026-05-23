@@ -44,8 +44,16 @@ enum TournamentMode {
   PRESENTIAL
 }
 
+enum CurrencyType {
+  KZ       // Kwanza
+  USD      // Dollar
+  EUR      // Euro
+  BRL      // Real
+}
+
 enum ParticipantStatus {
   REGISTERED
+  PENDING
   CHECKED_IN
   ELIMINATED
   WINNER
@@ -152,6 +160,7 @@ model Tournament {
   maxPlayers    Int
 
   entryFee      Float   @default(0)
+  currency      CurrencyType @default(USD)
   prizePool     Float   @default(0)
 
   startDate     DateTime?
@@ -181,6 +190,7 @@ model TournamentParticipant {
   userId        String
 
   status        ParticipantStatus @default(REGISTERED)
+  paymentProof  String?          // Comprovativo de pagamento para inscrições pagas
   finalPosition Int?
 
   joinedAt      DateTime @default(now())

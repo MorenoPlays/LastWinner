@@ -1,18 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards, Request } from '@nestjs/common';
 import { TournamentParticipantService } from './tournament-participant.service';
 import { CreateTournamentParticipantDto } from './dto/create-tournament-participant.dto';
 import { UpdateTournamentParticipantDto } from './dto/update-tournament-participant.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('tournament-participant')
 export class TournamentParticipantController {
   constructor(private readonly tournamentParticipantService: TournamentParticipantService) {}
 
   @Post()
-  create(@Body() createTournamentParticipantDto: CreateTournamentParticipantDto) {
-    return this.tournamentParticipantService.create(createTournamentParticipantDto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createTournamentParticipantDto: CreateTournamentParticipantDto, @Request() req: Express.Request & { user: { id: string; role: string } }) {
+    const userId = createTournamentParticipantDto.userId || req.user.id;
+    return this.tournamentParticipantService.create({ ...createTournamentParticipantDto, userId });
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.tournamentParticipantService.findAll();
   }
@@ -30,5 +34,17 @@ export class TournamentParticipantController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.tournamentParticipantService.remove(id);
+  }
+
+  @Get('pending/:tournamentId')
+  @UseGuards(JwtAuthGuard)
+  findPending(@Param('tournamentId') tournamentId: string) {
+    return this.tournamentParticipantService.findPendingByTournament(tournamentId);
+  }
+
+  @Put(':id/approve')
+  @UseGuards(JwtAuthGuard)
+  approve(@Param('id') participantId: string, @Request() req: Express.Request & { user: { id: string } }) {
+    return this.tournamentParticipantService.approvePending(participantId, req.user.id);
   }
 }
