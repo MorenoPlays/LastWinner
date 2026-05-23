@@ -13,13 +13,7 @@ function authHeaders(): HeadersInit {
   };
 }
 
-export async function api<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
-  // Every call gets its own AbortController signal so that Next.js dev-mode
-  // HMR memoization (which silently caches empty / stale responses) has no
-  // way to reuse a previous entry — each signal reference is unique.
+export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const ctrl = new AbortController();
 
   const res = await fetch(`${API_BASE}${path}`, {
@@ -29,15 +23,21 @@ export async function api<T>(
   });
 
   const bodyText = await res.text().catch((e) => {
-    console.error('Failed to read response body:', e);
-    return '';
+    console.error("Failed to read response body:", e);
+    return "";
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("accessToken");
+    }
     let errMsg = `API error ${res.status}`;
-    const ct = res.headers.get('content-type') || '';
-    if (bodyText && ct.includes('json')) {
-      try { const d = JSON.parse(bodyText); errMsg = (d as any)?.message ?? errMsg; } catch {}
+    const ct = res.headers.get("content-type") || "";
+    if (bodyText && ct.includes("json")) {
+      try {
+        const d = JSON.parse(bodyText);
+        errMsg = (d as any)?.message ?? errMsg;
+      } catch {}
     }
     throw new Error(errMsg);
   }
@@ -48,9 +48,9 @@ export async function api<T>(
     return (JSON.parse(bodyText) as unknown) as T;
   } catch (e) {
     throw new Error(
-      (e instanceof SyntaxError
-        ? 'Resposta inválida do servidor'
-        : `JSON parse error: ${(e as Error).message}`),
+      e instanceof SyntaxError
+        ? "Resposta inválida do servidor"
+        : `JSON parse error: ${(e as Error).message}`
     );
   }
 }
@@ -161,11 +161,16 @@ export const participantsApi = {
     tournamentId: string;
     userId: string;
     status?: string;
+    paymentProof?: string;
     finalPosition?: number;
   }) => api<any>("/tournament-participant", { method: "POST", body: JSON.stringify(dto) }),
   update: (id: string, dto: Record<string, any>) =>
     api<any>(`/tournament-participant/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
   delete: (id: string) => api<void>(`/tournament-participant/${id}`, { method: "DELETE" }),
+  getPendingByTournament: (tournamentId: string) =>
+    api<any[]>(`/tournament-participant/pending/${tournamentId}`),
+  approvePending: (participantId: string) =>
+    api<any>(`/tournament-participant/${participantId}/approve`, { method: "PUT" }),
 };
 
 // ─── Tournament Messages ─────────────────────────────────────────────────

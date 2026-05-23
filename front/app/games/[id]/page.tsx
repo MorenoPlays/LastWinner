@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { gamesApi, tournamentsApi } from "@/lib/api";
 import { useAuth } from "@/features/auth/useAuth";
 import type { Game, Tournament } from "@/lib/types";
+import { CURRENCY_MAP, formatCurrency } from "@/lib/types";
 
 const FORMAT_MAP: Record<string, string> = { SINGLE_ELIMINATION: "Eliminatória simples", DOUBLE_ELIMINATION: "Eliminatória dupla", ROUND_ROBIN: "Todos contra todos", SWISS: "Sistema suíço" };
 const MODE_MAP: Record<string, string> = { ONLINE: "Online", PRESENTIAL: "Presencial" };
@@ -53,57 +54,76 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   if (!game) return notFound();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <Link href="/games" className="mb-4 inline-block text-sm font-semibold text-violet-400 hover:text-violet-300 hover:underline">← Voltar aos jogos</Link>
-
-      <div className="glass-card card-hover overflow-hidden rounded-2xl">
-        {game.coverUrl ? <Image src={game.coverUrl} alt={game.name} width={800} height={400} className="h-56 w-full rounded-t-xl object-cover" unoptimized /> : <div className="flex h-56 items-center justify-center rounded-t-xl bg-slate-800"><span className="text-4xl font-extrabold text-slate-700">L</span></div>}
-        <div className="space-y-4 p-6">
-          <h1 className="text-2xl font-extrabold tracking-tight text-sky-300">{game.name}</h1>
-          <p className="text-sm text-zinc-400">Slug: <span className="font-mono text-zinc-300">{game.slug}</span></p>
-          {game.coverUrl && <p className="text-sm text-zinc-400"><a href={game.coverUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Ver imagem</a></p>}
-          <div className="flex gap-3 pt-2">
-            <Link href="/games" className="rounded-lg border border-violet-500/30 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-violet-500/15 transition-colors">← Voltar</Link>
-            {canManage && <Link href={`/games/${game.id}/edit`} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/30">Editar</Link>}
-          </div>
+    <div className="mx-auto max-w-5xl px-4 py-10">
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <div className="mb-10 flex flex-col items-center text-center">
+        {game.coverUrl ? <Image src={game.coverUrl} alt={game.name} width={800} height={400} className="mb-5 h-56 w-full rounded-2xl object-cover sm:h-64" unoptimized /> : null}
+        <h1 className="text-3xl font-extrabold tracking-tight text-sky-300 sm:text-5xl">{game.name}</h1>
+        <p className="mt-2 text-sm font-mono text-zinc-500 sm:text-base">{game.slug}</p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-xs font-bold text-indigo-300">{tournaments.length} torneio{tournaments.length !== 1 ? 's' : ''}</span>
+          {game.coverUrl && <a href={game.coverUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-violet-500/10 px-3 py-1 text-xs font-bold text-violet-300 hover:bg-violet-500/20 transition-colors">Ver imagem original</a>}
         </div>
+        <span className="mt-5 block h-1.5 w-24 rounded-full bg-violet-500/80 shadow-lg shadow-violet-500/40" />
+      </div>
+
+      {/* Back / Edit */}
+      <div className="mb-8 flex items-center gap-3">
+        <Link href="/games" className="rounded-lg border border-violet-500/30 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-violet-500/15 transition-colors">← Voltar aos jogos</Link>
+        {canManage && <Link href={`/games/${game.id}/edit`} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/30">Editar jogo</Link>}
       </div>
 
       {/* Tournaments for this game */}
-      <div className="mt-8">
-        <h2 className="mb-4 text-xl font-extrabold tracking-tight text-indigo-300">Torneios deste jogo</h2>
+      <div className="mt-2">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-xl font-extrabold tracking-tight text-indigo-300">Torneios deste jogo</h2>
+          {canManage && <Link href="/tournaments/new" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-shadow">Novo Torneio</Link>}
+        </div>
 
         {loadingT ? (
           <p className="text-sm text-zinc-400">A carregar torneios…</p>
         ) : tournaments.length === 0 ? (
-          <div className="glass-card card-hover rounded-xl p-6 text-center">
+          <div className="glass-card card-hover rounded-2xl p-10 text-center">
             <p className="text-sm text-zinc-400">Ainda não há torneios registados para este jogo.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {tournaments.map((t) => (
-              <div key={t.id} className="glass-card card-hover flex flex-col gap-3 rounded-xl p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-sky-300">{t.title}</h3>
-                    <p className="text-xs text-zinc-400">
-                      Formato: {FORMAT_MAP[t.format] || t.format} · Modo: {MODE_MAP[t.mode] || t.mode}
-                    </p>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {tournaments.map((t) => {
+              const inscritosCount = (t as any).participants?.filter((p: any) => p.status !== 'PENDING' && p.status !== 'ELIMINATED').length || 0;
+              const progress = t.maxPlayers > 0 ? (inscritosCount / t.maxPlayers) * 100 : 0;
+              const progressColor = progress >= 100 ? 'bg-red-500' : progress >= 75 ? 'bg-amber-500' : 'bg-green-500';
+              return (
+              <Link key={t.id} href={`/tournaments/${t.id}`} className="glass-card card-hover flex flex-col overflow-hidden rounded-2xl transition-transform hover:-translate-y-1">
+                {t.bannerUrl && <img src={t.bannerUrl} alt={t.title} className="h-40 w-full object-cover" />}
+                <div className="flex flex-col gap-2.5 p-5">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-base font-bold text-sky-300">{t.title}</h3>
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${STATUS_COLOR[t.status] || STATUS_COLOR.DRAFT}`}>{STATUS_MAP[t.status] || t.status}</span>
                   </div>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLOR[t.status] || STATUS_COLOR.DRAFT}`}>{STATUS_MAP[t.status] || t.status}</span>
+                  {t.description && <p className="line-clamp-2 text-xs text-zinc-400">{t.description}</p>}
+                  <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-zinc-400">
+                    <span className="rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-300">{FORMAT_MAP[t.format] || t.format}</span>
+                    <span className="rounded-full bg-sky-500/10 px-2.5 py-1 text-sky-300">{MODE_MAP[t.mode] || t.mode}</span>
+                    <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300">{t.entryFee > 0 ? formatCurrency(t.entryFee, (t as any).currency || 'USD') : 'Grátis'}</span>
+                  </div>
+                  {/* Players bar */}
+                  <div className="mt-0.5">
+                    <div className="mb-1 flex items-center justify-between text-[11px]">
+                      <span className="text-zinc-400">Jogadores</span>
+                      <span className={"font-semibold " + (progress >= 100 ? "text-red-400" : "text-green-400")}>{inscritosCount}/{t.maxPlayers}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-700/60">
+                      <div className={`h-full ${progressColor} transition-all`} style={{ width: `${Math.min(progress, 100)}%` }} />
+                    </div>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between border-t border-violet-500/15 pt-2.5">
+                    {(t as any).organizer?.username && <span className="text-[11px] text-zinc-500">Por <span className="text-indigo-400 font-medium">{(t as any).organizer.username}</span></span>}
+                    <span className="ml-auto inline-block rounded-lg px-4 py-1.5 text-xs font-semibold text-indigo-400 hover:bg-indigo-500/20 transition-colors">Ver Detalhes →</span>
+                  </div>
                 </div>
-                {t.description && <p className="text-sm text-zinc-400 line-clamp-2">{t.description}</p>}
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-400">
-                  <span>Jogadores: {t.maxPlayers}</span>
-                  <span>Inscrição: {t.entryFee > 0 ? `$${t.entryFee}` : "Grátis"}</span>
-                  <span>Prémio: {t.prizePool > 0 ? `$${t.prizePool}` : "—"}</span>
-                </div>
-                {t.bannerUrl && <img src={t.bannerUrl} alt={t.title} className="h-36 w-full rounded-lg object-cover" />}
-                <div className="mt-auto pt-2">
-                  <Link href={`/tournaments/${t.id}`} className="inline-block rounded-lg px-4 py-2 text-sm font-semibold text-indigo-400 hover:bg-indigo-500/20 transition-colors">Ver Detalhes</Link>
-                </div>
-              </div>
-            ))}
+              </Link>
+            );
+            })}
           </div>
         )}
       </div>

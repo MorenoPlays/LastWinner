@@ -17,36 +17,32 @@ export default function GamesPage() {
   if (loading) return <p className="p-8 text-center text-zinc-400">A carregar…</p>;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold tracking-tight text-indigo-300">Jogos</h1>
-        {canManage && <Link href="/games/new"><Button>Novo Jogo</Button></Link>}
+    <div className="mx-auto max-w-7xl px-4 py-10">
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <div className="mb-10 flex flex-col items-center text-center">
+        <h1 className="text-3xl font-extrabold tracking-tight text-indigo-300 sm:text-5xl">Jogos</h1>
+        <p className="mt-2 text-sm text-zinc-400 sm:text-base">Todos os jogos disponíveis. Escolhe o teu e entra na arena.</p>
+        <span className="mt-5 block h-1.5 w-24 rounded-full bg-violet-500/80 shadow-lg shadow-violet-500/40" />
       </div>
-      {error && <p className="mb-4 rounded-lg bg-red-900/40 px-4 py-3 text-sm text-red-300 ring-1 ring-red-500/30">{error}</p>}
-      {games.length === 0 ? <p className="text-sky-400/60">Nenhum jogo encontrado.</p> :
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {games.map((game) => (
-            <div key={game.id} className="glass-card card-hover flex flex-col gap-3 rounded-xl p-5">
-              {game.coverUrl ?
-                <Image src={game.coverUrl} alt={game.name} width={400} height={200} className="h-36 w-full rounded-lg object-cover" unoptimized /> :
-                <div className="flex h-36 items-center justify-center rounded-lg bg-slate-800/80">
-                  <span className="text-2xl font-bold text-slate-600">L</span>
+
+      {error && <p className="mb-6 rounded-lg bg-red-900/40 px-4 py-3 text-sm text-red-300 ring-1 ring-red-500/30">{error}</p>}
+
+      {games.length === 0
+        ? <div className="glass-card card-hover rounded-2xl p-10 text-center"><p className="text-lg font-semibold text-zinc-300 mb-1">Nenhum jogo registado ainda.</p><p className="text-sm text-zinc-400">Adicione um jogo para começar a criar torneios.</p></div>
+        : <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {games.map((game) => (
+              <Link key={game.id} href={`/games/${game.id}`} className="glass-card card-hover flex flex-col overflow-hidden rounded-2xl transition-transform hover:-translate-y-1">
+                {game.coverUrl ?
+                  <Image src={game.coverUrl} alt={game.name} width={400} height={200} className="h-44 w-full object-cover" unoptimized /> :
+                  <div className="flex h-44 items-center justify-center bg-slate-800/80"><span className="text-4xl font-extrabold text-slate-700">L</span></div>
+                }
+                <div className="p-4">
+                  <h2 className="text-base font-bold text-zinc-100">{game.name}</h2>
+                  <p className="mt-0.5 text-xs font-mono text-zinc-500">{game.slug}</p>
                 </div>
-              }
-              <h2 className="text-lg font-semibold text-sky-300">{game.name}</h2>
-              <p className="text-xs text-zinc-400">slug: {game.slug}</p>
-              <div className="mt-auto flex items-center gap-2">
-                <Link href={`/games/${game.id}`} className="flex-1 rounded-lg px-3 py-1.5 text-center text-sm font-semibold text-indigo-400 hover:bg-indigo-500/20 transition-colors">Ver</Link>
-                {canManage && (
-                  <>
-                    <Link href={`/games/${game.id}/edit`} className="flex-1 rounded-lg px-3 py-1.5 text-center text-sm font-semibold text-zinc-400 hover:bg-zinc-500/20 transition-colors">Editar</Link>
-                    <Button variant="danger" onClick={() => { if (confirm("Eliminar este jogo?")) { const token = localStorage.getItem("accessToken"); fetch(`${process.env.NEXT_PUBLIC_API || "http://localhost:3001"}/game/${game.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? window.location.reload() : alert("Erro.")); } }} className="rounded-lg">Eliminar</Button>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
       }
     </div>
   );

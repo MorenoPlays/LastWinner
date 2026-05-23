@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Tournament, Game } from "@/lib/types";
+import { formatCurrency } from "@/lib/types";
 
 function GameFallback({ src, alt }: { src?: string; alt: string }) {
   if (src) return <img src={src} alt={alt} className="h-48 w-full rounded-xl object-cover" />;
@@ -70,7 +71,7 @@ export default async function HomePage() {
                   <div className="mt-1 flex flex-wrap gap-2 text-xs text-zinc-400">
                     <span className="rounded-full bg-indigo-500/10 px-2.5 py-1 text-indigo-300">{FORMAT_MAP[t.format] || t.format}</span>
                     <span className="rounded-full bg-green-500/10 px-2.5 py-1 text-green-300">{t.maxPlayers} jogadores</span>
-                    <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300">{t.prizePool > 0 ? `$${t.prizePool}` : "Grátis"}</span>
+                    <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300">{t.prizePool > 0 ? formatCurrency(t.prizePool, (t as any).currency || 'USD') : "Grátis"}</span>
                   </div>
                 </div>
               </Link>

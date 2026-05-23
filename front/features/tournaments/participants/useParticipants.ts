@@ -9,7 +9,7 @@ export interface UseParticipantsReturn {
   loading: boolean;
   error: string;
   loadForTournament: (tournamentId: string, allParticipants?: TournamentParticipant[]) => void;
-  create: (dto: { tournamentId: string; userId: string; status?: string; finalPosition?: number }) => Promise<TournamentParticipant>;
+  create: (dto: { tournamentId: string; userId: string; status?: string; paymentProof?: string; finalPosition?: number }) => Promise<TournamentParticipant>;
   update: (id: string, dto: Record<string, any>) => Promise<void>;
   delete: (id: string) => Promise<void>;
   remove: (id: string) => void;
@@ -26,7 +26,7 @@ export function useParticipants(): UseParticipantsReturn {
     setParticipants(source.filter((p) => p.tournamentId === tournamentId));
   }, [participants]);
 
-  const create = useCallback(async (dto: { tournamentId: string; userId: string; status?: string; finalPosition?: number }) => {
+  const create = useCallback(async (dto: { tournamentId: string; userId: string; status?: string; paymentProof?: string; finalPosition?: number }) => {
     const created = await participantsApi.create(dto);
     setParticipants((prev) => [...prev, created]);
     return created;

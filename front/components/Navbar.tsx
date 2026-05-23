@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/features/auth/useAuth";
 import UserMenu from "@/components/UserMenu";
 const NAV = [
+  { href: "/", label: "Inicio" },
   { href: "/games", label: "Jogos" },
   { href: "/tournaments", label: "Torneios" },
 ];

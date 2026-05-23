@@ -7,10 +7,12 @@ import { tournamentsApi, gamesApi } from "@/lib/api";
 import { useAuth } from "@/features/auth/useAuth";
 import { useTournaments } from "@/features/tournaments/useTournaments";
 import type { Tournament } from "@/lib/types";
+import { CURRENCY_MAP } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
 const FORMAT_OPTIONS = [{ value: "SINGLE_ELIMINATION", label: "Eliminatória simples" }, { value: "DOUBLE_ELIMINATION", label: "Eliminatória dupla" }, { value: "ROUND_ROBIN", label: "Todos contra todos" }, { value: "SWISS", label: "Sistema suíço" }];
 const MODE_OPTIONS = [{ value: "ONLINE", label: "Online" }, { value: "PRESENTIAL", label: "Presencial" }];
+const CURRENCY_OPTIONS = [{ value: "KZ", label: "Kz – Kwanza" }, { value: "USD", label: "$ – Dólar" }, { value: "EUR", label: "€ – Euro" }, { value: "BRL", label: "R$ – Real" }];
 
 const inputCls = "w-full rounded-lg border border-violet-500/30 bg-slate-900/60 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-500/40";
 const selectCls = inputCls;
@@ -27,9 +29,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export default function EditTournamentPage({ params }: { params: Promise<{ id: string }> }) {
   const { user } = useAuth();
   const router = useRouter();
-  const canManage = user?.role === "ADMIN" || user?.role === "ORGANIZER";
   const { update } = useTournaments();
-  const id = reactUse(params);
+  const { id } = reactUse(params);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -39,6 +40,7 @@ export default function EditTournamentPage({ params }: { params: Promise<{ id: s
   const [status, setStatus] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(16);
   const [entryFee, setEntryFee] = useState(0);
+  const [currency, setCurrency] = useState("USD");
   const [prizePool, setPrizePool] = useState(0);
   const [bannerUrl, setBannerUrl] = useState("");
   const [games, setGames] = useState<{ id: string; name: string }[]>([]);
@@ -50,21 +52,23 @@ export default function EditTournamentPage({ params }: { params: Promise<{ id: s
     (async () => {
       try {
         const [t, g] = await Promise.all([tournamentsApi.getOne(id), gamesApi.getAll()]);
-        setTournament(t); setTitle(t.title); setDescription(t.description || ""); setGameId(t.gameId); setFormat(t.format); setMode(t.mode); setStatus(t.status); setMaxPlayers(t.maxPlayers); setEntryFee(t.entryFee); setPrizePool(t.prizePool); setBannerUrl(t.bannerUrl || ""); setGames(g);
+        setTournament(t); setTitle(t.title); setDescription(t.description || ""); setGameId(t.gameId); setFormat(t.format); setMode(t.mode); setStatus(t.status); setMaxPlayers(t.maxPlayers); setEntryFee(t.entryFee); setCurrency(t.currency); setPrizePool(t.prizePool); setBannerUrl(t.bannerUrl || ""); setGames(g);
       } catch (err) { setError(err instanceof Error ? err.message : "Erro."); }
       finally { setFetching(false); }
     })();
   }, [id]);
 
-  if (!canManage) return <p className="p-8 text-center text-red-400">Sem permissão.</p>;
   if (fetching) return <p className="p-8 text-center text-zinc-400">A carregar…</p>;
+  const isOwner = user?.id === tournament?.organizerId;
+  const canManage = user?.role === "ADMIN" || isOwner === true;
+  if (!canManage) return <p className="p-8 text-center text-red-400">Sem permissão.</p>;
   if (!tournament) return <p className="p-8 text-center text-zinc-400">Torneio não encontrado.</p>;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingState(true); setError("");
     try {
-      await update(id, { title, description: description || undefined, gameId, format, mode, status, maxPlayers, entryFee: entryFee || undefined, prizePool: prizePool || undefined, bannerUrl: bannerUrl || undefined });
+      await update(id, { title, description: description || undefined, gameId, format, mode, status, maxPlayers, entryFee: entryFee || undefined, currency, prizePool: prizePool || undefined, bannerUrl: bannerUrl || undefined });
       router.push("/tournaments");
     } catch (err) { setError(err instanceof Error ? err.message || "Erro ao atualizar." : "Erro ao atualizar."); }
     finally { setLoadingState(false); }
@@ -86,8 +90,9 @@ export default function EditTournamentPage({ params }: { params: Promise<{ id: s
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="Jogadores máx."><input type="number" value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))} min={2} className={inputCls} /></Field>
-          <Field label="Inscrição ($)"><input type="number" value={entryFee} onChange={(e) => setEntryFee(Number(e.target.value))} min={0} className={inputCls} /></Field>
-          <Field label="Prémio ($)"><input type="number" value={prizePool} onChange={(e) => setPrizePool(Number(e.target.value))} min={0} className={inputCls} /></Field>
+          <Field label={`Inscrição ${CURRENCY_MAP[currency as keyof typeof CURRENCY_MAP]?.symbol || "$"}`}><input type="number" value={entryFee} onChange={(e) => setEntryFee(Number(e.target.value))} min={0} className={inputCls} /></Field>
+          <Field label="Moeda"><select value={currency} onChange={(e) => setCurrency(e.target.value)} className={selectCls}>{CURRENCY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></Field>
+          <Field label={`Prémio ${CURRENCY_MAP[currency as keyof typeof CURRENCY_MAP]?.symbol || "$"}`}><input type="number" value={prizePool} onChange={(e) => setPrizePool(Number(e.target.value))} min={0} className={inputCls} /></Field>
         </div>
         <Field label="URL do banner"><input type="url" value={bannerUrl} onChange={(e) => setBannerUrl(e.target.value)} className={inputCls} /></Field>
         <div className="flex gap-3 pt-2">

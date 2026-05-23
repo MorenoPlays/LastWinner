@@ -15,7 +15,46 @@ export type TournamentFormat =
 
 export type TournamentMode = "ONLINE" | "PRESENTIAL";
 
-export type ParticipantStatus = "REGISTERED" | "CHECKED_IN" | "ELIMINATED" | "WINNER";
+export type CurrencyType = "KZ" | "USD" | "EUR" | "BRL";
+
+export type CurrencySymbol = {
+  symbol: string;
+  label: string;
+};
+
+export const CURRENCY_MAP: Record<CurrencyType, CurrencySymbol> = {
+  KZ:  { symbol: "Kz",    label: "Kwanza"  },
+  USD: { symbol: "$",     label: "Dólar"   },
+  EUR: { symbol: "€",     label: "Euro"    },
+  BRL: { symbol: "R$",    label: "Real"    },
+};
+
+export function formatCurrency(
+  value: number,
+  currency: CurrencyType,
+  options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }
+): string;
+// Allow `undefined` for defensive UI usage when backend may omit the field
+export function formatCurrency(
+  value: number,
+  currency: CurrencyType | undefined,
+  options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }
+): string;
+export function formatCurrency(
+  value: number,
+  currency: CurrencyType | undefined,
+  options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }
+): string {
+  const isoCurrency = currency === 'KZ' ? 'AOA' : currency ?? 'USD';
+  return Intl.NumberFormat(options?.locale ?? 'pt-PT', {
+    style: 'currency',
+    currency: isoCurrency,
+    minimumFractionDigits: options?.minimumFractionDigits ?? 0,
+    maximumFractionDigits: options?.maximumFractionDigits ?? 2,
+  }).format(value).replace('AOA', CURRENCY_MAP.KZ.symbol);
+}
+
+export type ParticipantStatus = "REGISTERED" | "PENDING" | "CHECKED_IN" | "ELIMINATED" | "WINNER";
 
 export type MatchStatus = "PENDING" | "LIVE" | "FINISHED" | "CANCELED";
 
@@ -57,12 +96,14 @@ export interface Tournament {
   status: TournamentStatus;
   maxPlayers: number;
   entryFee: number;
+  currency: CurrencyType;
   prizePool: number;
   startDate?: string;
   endDate?: string;
   bannerUrl?: string;
   createdAt: string;
   updatedAt: string;
+  participants?: Array<{ id: string; status: ParticipantStatus }>;
 }
 
 export interface TournamentParticipant {
@@ -72,6 +113,7 @@ export interface TournamentParticipant {
   userId: string;
   user?: User;
   status: ParticipantStatus;
+  paymentProof?: string;
   finalPosition?: number;
   joinedAt: string;
 }

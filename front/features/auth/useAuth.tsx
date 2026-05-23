@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { authApi } from "@/lib/api";
+import { setAccessTokenCookie, clearAccessTokenCookie } from "@/lib/cookies";
 import type { User } from "@/lib/types";
 
 interface AuthContextType {
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const data = await authApi.login({ email, password });
     localStorage.setItem("accessToken", data.accessToken);
+    setAccessTokenCookie(data.accessToken);
     setToken(data.accessToken);
   }, []);
 
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (username: string, email: string, password: string) => {
       const data = await authApi.register({ username, email, password });
       localStorage.setItem("accessToken", data.accessToken);
+      setAccessTokenCookie(data.accessToken);
       setToken(data.accessToken);
     },
     [],
@@ -66,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem("accessToken");
+    clearAccessTokenCookie();
     setToken(null);
     setUser(null);
   }, []);
