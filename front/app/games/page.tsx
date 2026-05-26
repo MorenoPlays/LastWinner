@@ -24,7 +24,10 @@ export default function GamesPage() {
         <p className="mt-2 text-sm text-zinc-400 sm:text-base">Todos os jogos disponíveis. Escolhe o teu e entra na arena.</p>
         <span className="mt-5 block h-1.5 w-24 rounded-full bg-violet-500/80 shadow-lg shadow-violet-500/40" />
       </div>
-
+      {canManage ? 
+      <Link className="mt-5 " href={"/games/new"}>Cadastrar novo Jogo</Link> 
+      : ""
+    }
       {error && <p className="mb-6 rounded-lg bg-red-900/40 px-4 py-3 text-sm text-red-300 ring-1 ring-red-500/30">{error}</p>}
 
       {games.length === 0

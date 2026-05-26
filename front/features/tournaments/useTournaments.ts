@@ -14,6 +14,9 @@ export interface UseTournamentsReturn {
   create: (dto: any) => Promise<Tournament>;
   update: (id: string, dto: Record<string, any>) => Promise<Tournament>;
   delete: (id: string) => Promise<void>;
+  startTournament: (id: string) => Promise<Tournament>;
+  finishTournament: (id: string) => Promise<Tournament>;
+  declareWinner: (id: string, winnerId: string) => Promise<Tournament>;
   setCurrentTournament: (t: Tournament | null) => void;
 }
 
@@ -72,5 +75,73 @@ export function useTournaments(): UseTournamentsReturn {
     }
   }, [currentTournament?.id]);
 
-  return { tournaments, currentTournament, loading, error, loadAll, loadOne, create, update, delete: remove, setCurrentTournament };
+  const startTournament = useCallback(async (id: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const updated = await tournamentsApi.startTournament(id);
+      setTournaments((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      if (currentTournament?.id === id) {
+        setCurrentTournament(updated);
+      }
+      return updated;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [currentTournament?.id]);
+
+  const finishTournament = useCallback(async (id: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const updated = await tournamentsApi.finishTournament(id);
+      setTournaments((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      if (currentTournament?.id === id) {
+        setCurrentTournament(updated);
+      }
+      return updated;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [currentTournament?.id]);
+
+  const declareWinner = useCallback(async (id: string, winnerId: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const updated = await tournamentsApi.declareWinner(id, winnerId);
+      setTournaments((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      if (currentTournament?.id === id) {
+        setCurrentTournament(updated);
+      }
+      return updated;
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [currentTournament?.id]);
+
+  return {
+    tournaments,
+    currentTournament,
+    loading,
+    error,
+    loadAll,
+    loadOne,
+    create,
+    update,
+    delete: remove,
+    startTournament,
+    finishTournament,
+    declareWinner,
+    setCurrentTournament,
+  };
 }

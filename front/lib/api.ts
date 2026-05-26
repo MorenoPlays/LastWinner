@@ -119,6 +119,10 @@ export const tournamentsApi = {
   update: (id: string, dto: Record<string, any>) =>
     api<any>(`/tournament/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
   delete: (id: string) => api<void>(`/tournament/${id}`, { method: "DELETE" }),
+  startTournament: (id: string) => api<any>(`/tournament/${id}/start`, { method: "POST" }),
+  finishTournament: (id: string) => api<any>(`/tournament/${id}/finish`, { method: "POST" }),
+  declareWinner: (id: string, winnerId: string) =>
+    api<any>(`/tournament/${id}/declare-winner/${winnerId}`, { method: "POST" }),
 };
 
 // ─── Matches ─────────────────────────────────────────────────────────────
@@ -140,6 +144,8 @@ export const matchesApi = {
   update: (id: string, dto: Record<string, any>) =>
     api<any>(`/match/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
   delete: (id: string) => api<void>(`/match/${id}`, { method: "DELETE" }),
+  setWinner: (id: string, winnerId: string) =>
+    api<any>(`/match/${id}/winner`, { method: "PATCH", body: JSON.stringify({ winnerId}) }),
 };
 
 // ─── Brackets ────────────────────────────────────────────────────────────

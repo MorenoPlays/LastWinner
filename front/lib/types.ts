@@ -34,7 +34,6 @@ export function formatCurrency(
   currency: CurrencyType,
   options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }
 ): string;
-// Allow `undefined` for defensive UI usage when backend may omit the field
 export function formatCurrency(
   value: number,
   currency: CurrencyType | undefined,
@@ -103,7 +102,7 @@ export interface Tournament {
   bannerUrl?: string;
   createdAt: string;
   updatedAt: string;
-  participants?: Array<{ id: string; status: ParticipantStatus }>;
+  participants?: TournamentParticipant[];
 }
 
 export interface TournamentParticipant {
@@ -132,9 +131,9 @@ export interface Match {
   bracket?: Bracket;
   roundNumber: number;
   matchNumber: number;
-  player1Id: string;
+  player1Id?: string;
   player1?: User;
-  player2Id: string;
+  player2Id?: string;
   player2?: User;
   winnerId?: string;
   winner?: User;
@@ -143,6 +142,8 @@ export interface Match {
   status: MatchStatus;
   scheduledAt?: string;
   finishedAt?: string;
+  nextMatchId?: string;
+  nextMatch?: Match;
 }
 
 export interface TournamentMessage {

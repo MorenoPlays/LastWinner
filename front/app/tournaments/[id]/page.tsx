@@ -7,9 +7,12 @@ import { tournamentsApi, participantsApi, messagesApi, adminUsersApi } from "@/l
 import { useAuth } from "@/features/auth/useAuth";
 import { useParticipants } from "@/features/tournaments/participants/useParticipants";
 import { useMessages } from "@/features/tournaments/messages/useMessages";
-import type { Tournament, User } from "@/lib/types";
+import type { Tournament, User, Match } from "@/lib/types";
 import { CURRENCY_MAP, formatCurrency } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
+import {BracketTree} from "@/components/BracketTree";
+import { TournamentWinnerActions } from "@/components/TournamentWinnerActions";
+import { TournamentResults } from "@/components/TournamentResults";
 import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 const STATUS_COLOR: Record<string, string> = { DRAFT: "bg-slate-700/60 text-zinc-300", OPEN: "bg-green-500/30 text-green-300", ONGOING: "bg-sky-500/30 text-sky-300", FINISHED: "bg-amber-500/30 text-amber-300", CANCELED: "bg-red-500/30 text-red-300" };
@@ -81,15 +84,15 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
    }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !msgText.trim()) return;
-    setMsgLoading(true);
-    try {
-      const newMsg = await messages.send(id, user, msgText.trim());
-      setMsgText("");
-    } catch (err: any) { alert(err.message); }
-    finally { setMsgLoading(false); }
-  };
+     e.preventDefault();
+     if (!user || !msgText.trim()) return;
+     setMsgLoading(true);
+     try {
+       const newMsg = await messages.send(id, user, msgText.trim());
+       setMsgText("");
+     } catch (err: any) { alert(err.message); }
+     finally { setMsgLoading(false); }
+   };
 
    const handleJoin = async (e: React.FormEvent) => {
      e.preventDefault();
@@ -115,22 +118,22 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
    };
 
   const handleSetWinner = async (pid: string, pos: number) => {
-    try {
-      await participants.update(pid, { status: "WINNER" as any, finalPosition: pos });
-      const all = await participantsApi.getAll();
-      participants.setParticipants(all);
-      participants.loadForTournament(id, all);
-    } catch (err: any) { alert(err.message); }
-  };
+     try {
+       await participants.update(pid, { status: "WINNER" as any, finalPosition: pos });
+       const all = await participantsApi.getAll();
+       participants.setParticipants(all);
+       participants.loadForTournament(id, all);
+     } catch (err: any) { alert(err.message); }
+   };
 
   const loadUsers = async () => {
-    try {
-      const all = await adminUsersApi.getAll();
-      setAvailUsers((all as User[]).filter(u => !participants.participants.some(p => p.userId === u.id)));
-    } catch (err) {
-      console.error("Failed to load users:", err);
-      alert("Não foi possível carregar os utilizadores.");
-    }
+     try {
+       const all = await adminUsersApi.getAll();
+       setAvailUsers((all as User[]).filter(u => !participants.participants.some(p => p.userId === u.id)));
+     } catch (err) {
+       console.error("Failed to load users:", err);
+       alert("Não foi possível carregar os utilizadores.");
+     }
    };
 
   const isAlreadyRegistered = user
@@ -141,49 +144,49 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
     : false;
 
   const handleSelfJoin = async (e: React.FormEvent, skipProof = false) => {
-    e.preventDefault();
-    if (!user || !id) return;
-    setJoining(true);
-    try {
-      await participants.create({
-        tournamentId: id,
-        userId: user.id,
-        paymentProof: skipProof ? undefined : (proofUploadedUrl || undefined),
-      });
-      const all = await participantsApi.getAll();
-      participants.setParticipants(all);
-      participants.loadForTournament(id, all);
-      setShowSelfJoin(false);
-      resetProofState();
-    } catch (err: any) { alert(err.message); }
-    finally { setJoining(false); }
-  };
+     e.preventDefault();
+     if (!user || !id) return;
+     setJoining(true);
+     try {
+       await participants.create({
+         tournamentId: id,
+         userId: user.id,
+         paymentProof: skipProof ? undefined : (proofUploadedUrl || undefined),
+       });
+       const all = await participantsApi.getAll();
+       participants.setParticipants(all);
+       participants.loadForTournament(id, all);
+       setShowSelfJoin(false);
+       resetProofState();
+     } catch (err: any) { alert(err.message); }
+     finally { setJoining(false); }
+   };
 
   const resetProofState = () => {
-    setProofFile(null);
-    setProofUploadedUrl("");
-    setUploadingProof(false);
-  };
+     setProofFile(null);
+     setProofUploadedUrl("");
+     setUploadingProof(false);
+   };
 
   const loadPending = async () => {
-    try {
-      const data = await participantsApi.getPendingByTournament(id);
-      setPendingRequests(data);
-      setShowPending(true);
-    } catch (err: any) { alert(err.message); }
-  };
+     try {
+       const data = await participantsApi.getPendingByTournament(id);
+       setPendingRequests(data);
+       setShowPending(true);
+     } catch (err: any) { alert(err.message); }
+   };
 
   const handleApprove = async (participantId: string) => {
-    setApprovingId(participantId);
-    try {
-      await participantsApi.approvePending(participantId);
-      setPendingRequests(prev => prev.filter(p => p.id !== participantId));
-      const all = await participantsApi.getAll();
-      participants.setParticipants(all);
-      participants.loadForTournament(id, all);
-    } catch (err: any) { alert(err.message); }
-    finally { setApprovingId(null); }
-  };
+     setApprovingId(participantId);
+     try {
+       await participantsApi.approvePending(participantId);
+       setPendingRequests(prev => prev.filter(p => p.id !== participantId));
+       const all = await participantsApi.getAll();
+       participants.setParticipants(all);
+       participants.loadForTournament(id, all);
+     } catch (err: any) { alert(err.message); }
+     finally { setApprovingId(null); }
+   };
 
   if (loading) return <p className="p-8 text-center text-zinc-400">A carregar…</p>;
   if (error || !tournament) return <p className="p-8 text-center text-red-400">{error || "Torneio não encontrado."}</p>;
@@ -217,34 +220,124 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      {/* Overview */}
-      {activeTab === "overview" && (
-        <div className="space-y-4">
-          <div className="glass-card card-hover rounded-xl p-6">
-            <h2 className="mb-2 text-lg font-semibold text-indigo-300">Detalhes</h2>
-            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-              <div><dt className="text-zinc-500">ID</dt><dd className="font-mono text-zinc-200">####################</dd></div>
-              <div><dt className="text-zinc-500">Jogo</dt><dd className="text-zinc-200">{(tournament as any).game?.name || tournament.gameId}</dd></div>
-              <div><dt className="text-zinc-500">Máx. Jogadores</dt><dd className="text-zinc-200">{tournament.maxPlayers}</dd></div>
-              <div><dt className="text-zinc-500">Criado em</dt><dd className="text-zinc-200">{new Date(tournament.createdAt).toLocaleDateString("pt-PT")}</dd></div>
-            </dl>
-          </div>
-          <div className="flex gap-3">
-            {canManage && <Link href={`/tournaments/${tournament.id}/edit`}><Button className="rounded-lg shadow-lg shadow-indigo-500/30">Editar Torneio</Button></Link>}
-            {user && !canManage && !isAlreadyRegistered && !isPendingPayment && (
-              <button onClick={() => setShowSelfJoin(true)} className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-500 shadow-lg shadow-green-600/30 transition-shadow">
-                Inscrever-me
-              </button>
-            )}
-            {user && !canManage && isPendingPayment && (
-              <span className="flex items-center gap-2 rounded-lg border border-amber-500/30 px-4 py-2 text-sm font-semibold text-amber-400">⏳ Aguardando validação</span>
-            )}
-            {user && !canManage && isAlreadyRegistered && !isPendingPayment && (
-              <span className="flex items-center gap-2 rounded-lg border border-green-500/30 px-4 py-2 text-sm font-semibold text-green-400">✓ Inscrito</span>
-            )}
-          </div>
-        </div>
-      )}
+       {/* Overview */}
+       {activeTab === "overview" && (
+         <div className="space-y-4">
+           <div className="glass-card card-hover rounded-xl p-6">
+             <h2 className="mb-2 text-lg font-semibold text-indigo-300">Detalhes</h2>
+             <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+               <div><dt className="text-zinc-500">ID</dt><dd className="font-mono text-zinc-200">####################</dd></div>
+               <div><dt className="text-zinc-500">Jogo</dt><dd className="text-zinc-200">{(tournament as any).game?.name || tournament.gameId}</dd></div>
+               <div><dt className="text-zinc-500">Máx. Jogadores</dt><dd className="text-zinc-200">{tournament.maxPlayers}</dd></div>
+               <div><dt className="text-zinc-500">Criado em</dt><dd className="text-zinc-200">{new Date(tournament.createdAt).toLocaleDateString("pt-PT")}</dd></div>
+             </dl>
+           </div>
+           <div className="flex gap-3">
+             {canManage && <Link href={`/tournaments/${tournament.id}/edit`}><Button className="rounded-lg shadow-lg shadow-indigo-500/30">Editar Torneio</Button></Link>}
+             {user && !canManage && !isAlreadyRegistered && !isPendingPayment && (
+               <button onClick={() => setShowSelfJoin(true)} className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-500 shadow-lg shadow-green-600/30 transition-shadow">
+                 Inscrever-me
+               </button>
+             )}
+             {user && !canManage && isPendingPayment && (
+               <span className="flex items-center gap-2 rounded-lg border border-amber-500/30 px-4 py-2 text-sm font-semibold text-amber-400">⏳ Aguardando validação</span>
+             )}
+             {user && !canManage && isAlreadyRegistered && !isPendingPayment && (
+               <span className="flex items-center gap-2 rounded-lg border border-green-500/30 px-4 py-2 text-sm font-semibold text-green-400">✓ Inscrito</span>
+             )}
+             {canManage && tournament.status === 'OPEN' && (
+               <Button 
+                 variant="outline"
+                 onClick={async () => {
+                   if (window.confirm('Tem certeza que deseja iniciar o torneio? Isso criará as partidas e alterará o status para "Em curso".')) {
+                     try {
+                       await tournamentsApi.startTournament(tournament.id);
+                       const updatedTournament = await tournamentsApi.getOne(tournament.id);
+                       setTournament(updatedTournament);
+                     } catch (err: any) {
+                       alert(err.message || 'Erro ao iniciar o torneio');
+                     }
+                   }
+                 }}
+               >
+                 Iniciar Torneio
+               </Button>
+             )}
+           </div>
+          
+           {/* Bracket Visualization */}
+           {tournament.brackets && tournament.brackets.length > 0 && (
+             <div className="space-y-4">
+               <h2 className="text-lg font-semibold text-indigo-300">Bracket</h2>
+               <div className="mb-4">
+                 {tournament.status === 'OPEN' && canManage && (
+                   <Button 
+                     variant="outline"
+                     onClick={async () => {
+                       if (window.confirm('Tem certeza que deseja iniciar o torneio? Isso criará as partidas e alterará o status para "Em curso".')) {
+                         try {
+                           await tournamentsApi.startTournament(tournament.id);
+                           const updatedTournament = await tournamentsApi.getOne(tournament.id);
+                           setTournament(updatedTournament);
+                         } catch (err: any) {
+                           alert(err.message || 'Erro ao iniciar o torneio');
+                         }
+                       }
+                     }}
+                   >
+                     Iniciar Torneio
+                   </Button>
+                 )}
+               </div>
+               <div className="glass-card rounded-2xl p-6">
+                 {/* Fetch matches for the first bracket */}
+                 {tournament.brackets[0]?.matches ? (
+                   <>
+                     {/* Calculate winner's bracket rounds from maxPlayers */}
+                     {(() => {
+                       const wbRounds = Math.log2(tournament.maxPlayers) || 0;
+                       
+                       return (
+                         <BracketTree 
+                           matches={tournament.brackets[0].matches} 
+                           wbRounds={wbRounds}
+                           tournamentId={tournament.id}
+                           canStart={tournament.status === 'OPEN' && canManage}
+                           refetch={async () => {
+                             const updatedTournament = await tournamentsApi.getOne(tournament.id);
+                             setTournament(updatedTournament);
+                           }}
+                         />
+                       );
+                     })()}
+                   </>
+                 ) : (
+                   <p className="text-center text-zinc-400 py-8">Carregando partidas...</p>
+                 )}
+               </div>
+             </div>
+           )}
+
+           {/* Winner Actions & Results */}
+           {tournament.status === 'ONGOING' && canManage && (
+             <div className="space-y-4">
+               <h2 className="text-lg font-semibold text-indigo-300">Definir Vencedor</h2>
+               <TournamentWinnerActions
+                 tournament={tournament}
+                 onSuccess={(result) => {
+                   setTournament(result);
+                 }}
+               />
+             </div>
+           )}
+
+           {tournament.status === 'FINISHED' && (
+             <div className="space-y-4">
+               <TournamentResults tournament={tournament} />
+             </div>
+           )}
+         </div>
+       )}
 
       {/* Self-join modal */}
       {showSelfJoin && (
@@ -259,7 +352,6 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
 
                 {!proofUploadedUrl ? (
                   <div className="space-y-4">
-                    {/* Option 1: Upload proof via Cloudinary */}
                     <div className="glass-card rounded-xl border border-violet-500/20 p-4">
                       <h3 className="mb-2 text-sm font-semibold text-sky-300">Enviar comprovativo de pagamento (recomendado)</h3>
                       <p className="mb-3 text-xs text-zinc-400">Faça upload de uma imagem do comprovativo (PNG, JPG, WEBP). O arquivo será armazenado no Cloudinary.</p>
@@ -302,7 +394,6 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
                       </div>
                     </div>
 
-                    {/* Option 2: Register without proof */}
                     <div className="glass-card rounded-xl border border-amber-500/20 p-4">
                       <h3 className="mb-2 text-sm font-semibold text-amber-300">Inscrever-me sem comprovativo</h3>
                       <p className="mb-3 text-xs text-zinc-400">Você não tem o comprovativo agora. A sua inscrição ficará pendente — é sua responsabilidade contactar o organizador para efectuar o pagamento.</p>
@@ -318,7 +409,6 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
                       </div>
                     </div>
 
-                    {/* Cancel */}
                     <div className="flex justify-end">
                       <button type="button" onClick={() => { setShowSelfJoin(false); resetProofState(); }} className="rounded-lg border border-violet-500/30 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-violet-500/15 transition-colors">Cancelar</button>
                     </div>
@@ -375,6 +465,18 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
       {/* Participants */}
       {activeTab === "participants" && (
         <div className="space-y-4">
+          {canManage && tournament.status === 'ONGOING' && (
+            <div className="glass-card rounded-xl border border-green-500/30 p-4">
+              <p className="mb-3 text-sm font-semibold text-green-300">Torneio em Curso</p>
+              <TournamentWinnerActions
+                tournament={tournament}
+                onSuccess={(result) => {
+                  setTournament(result);
+                  setActiveTab("overview");
+                }}
+              />
+            </div>
+          )}
           {canManage && <button onClick={() => { loadUsers(); setShowJoinForm(true); }} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-shadow">Adicionar Participante</button>}
           {canManage && (tournament.entryFee > 0 || tournament.prizePool > 0) && (
             <button onClick={loadPending} className={`rounded-lg px-4 py-2 text-sm font-semibold hover:bg-amber-500/15 transition-colors ${pendingRequests.length > 0 ? "border border-amber-500/40 text-amber-400" : "border border-violet-500/30 text-zinc-300"}`}>
