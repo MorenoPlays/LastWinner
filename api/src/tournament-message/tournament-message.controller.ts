@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { TournamentMessageService } from './tournament-message.service';
 import { CreateTournamentMessageDto } from './dto/create-tournament-message.dto';
 import { UpdateTournamentMessageDto } from './dto/update-tournament-message.dto';
 
 @Controller('tournament-message')
 export class TournamentMessageController {
-  constructor(private readonly tournamentMessageService: TournamentMessageService) {}
+  constructor(
+    private readonly tournamentMessageService: TournamentMessageService,
+  ) {}
 
   @Post()
   create(@Body() createTournamentMessageDto: CreateTournamentMessageDto) {
@@ -23,7 +33,10 @@ export class TournamentMessageController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTournamentMessageDto: UpdateTournamentMessageDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTournamentMessageDto: UpdateTournamentMessageDto,
+  ) {
     return this.tournamentMessageService.update(id, updateTournamentMessageDto);
   }
 

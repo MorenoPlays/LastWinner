@@ -8,7 +8,9 @@ export class TournamentMessageService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createTournamentMessageDto: CreateTournamentMessageDto) {
-    return this.prisma.tournamentMessage.create({ data: createTournamentMessageDto });
+    return this.prisma.tournamentMessage.create({
+      data: createTournamentMessageDto,
+    });
   }
 
   findAll() {

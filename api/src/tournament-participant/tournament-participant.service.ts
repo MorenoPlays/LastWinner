@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTournamentParticipantDto } from './dto/create-tournament-participant.dto';
 import { UpdateTournamentParticipantDto } from './dto/update-tournament-participant.dto';
@@ -11,8 +16,11 @@ export class TournamentParticipantService {
     return this.createInternal(createTournamentParticipantDto);
   }
 
-  private async createInternal(createTournamentParticipantDto: CreateTournamentParticipantDto) {
-    const { tournamentId, userId, paymentProof } = createTournamentParticipantDto;
+  private async createInternal(
+    createTournamentParticipantDto: CreateTournamentParticipantDto,
+  ) {
+    const { tournamentId, userId, paymentProof } =
+      createTournamentParticipantDto;
 
     const tournament = await this.prisma.tournament.findUnique({
       where: { id: tournamentId },
@@ -51,7 +59,9 @@ export class TournamentParticipantService {
       },
       include: {
         user: { select: { id: true, username: true, email: true } },
-        tournament: { select: { id: true, title: true, entryFee: true, currency: true } },
+        tournament: {
+          select: { id: true, title: true, entryFee: true, currency: true },
+        },
       },
     });
   }
@@ -82,13 +92,21 @@ export class TournamentParticipantService {
   }
 
   async findOne(id: string) {
-    const participant = await this.prisma.tournamentParticipant.findUnique({ where: { id } });
+    const participant = await this.prisma.tournamentParticipant.findUnique({
+      where: { id },
+    });
     if (!participant) throw new NotFoundException('Participant not found');
     return participant;
   }
 
-  update(id: string, updateTournamentParticipantDto: UpdateTournamentParticipantDto) {
-    return this.prisma.tournamentParticipant.update({ where: { id }, data: updateTournamentParticipantDto });
+  update(
+    id: string,
+    updateTournamentParticipantDto: UpdateTournamentParticipantDto,
+  ) {
+    return this.prisma.tournamentParticipant.update({
+      where: { id },
+      data: updateTournamentParticipantDto,
+    });
   }
 
   remove(id: string) {

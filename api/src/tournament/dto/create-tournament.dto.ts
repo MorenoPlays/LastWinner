@@ -1,8 +1,13 @@
-import { CurrencyType, TournamentFormat, TournamentStatus, TournamentMode } from '@prisma/client';
+import {
+  CurrencyType,
+  TournamentFormat,
+  TournamentStatus,
+  TournamentMode,
+} from '@prisma/client';
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 export class CreateTournamentDto {
   @IsString()
-  organizerId!: string
+  organizerId!: string;
 
   @IsString()
   title!: string;
@@ -46,7 +51,7 @@ export class CreateTournamentDto {
   @IsString()
   @IsOptional()
   bannerUrl?: string;
-  
+
   @IsString()
   gameId!: string;
 }

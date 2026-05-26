@@ -22,7 +22,10 @@ export class BracketService {
   }
 
   update(id: string, updateBracketDto: UpdateBracketDto) {
-    return this.prisma.bracket.update({ where: { id }, data: updateBracketDto });
+    return this.prisma.bracket.update({
+      where: { id },
+      data: updateBracketDto,
+    });
   }
 
   remove(id: string) {

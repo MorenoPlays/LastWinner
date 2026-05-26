@@ -15,7 +15,6 @@ export class AuthResponseDto {
 
   @IsString()
   accessToken!: string;
-  
 }
 
 export class RegisterResponseDto {

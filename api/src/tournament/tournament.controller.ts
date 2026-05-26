@@ -24,8 +24,42 @@ export class TournamentController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'ORGANIZER', 'USER')
-  create(@Body() createTournamentDto: CreateTournamentDto, @Request() req: Request & { user: { id: string; role: string } }) {
+  create(
+    @Body() createTournamentDto: CreateTournamentDto,
+    @Request() req: Request & { user: { id: string; role: string } },
+  ) {
     return this.tournamentService.create(createTournamentDto, req.user);
+  }
+
+  @Post(':id/start')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ORGANIZER')
+  async startTournament(
+    @Param('id') id: string,
+    @Request() req: Request & { user: { id: string; role: string } },
+  ) {
+    return this.tournamentService.startTournament(id, req.user);
+  }
+
+  @Post(':id/finish')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ORGANIZER')
+  async finishTournament(
+    @Param('id') id: string,
+    @Request() req: Request & { user: { id: string; role: string } },
+  ) {
+    return this.tournamentService.finishTournament(id, req.user);
+  }
+
+  @Post(':id/declare-winner/:winnerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ORGANIZER')
+  async declareWinner(
+    @Param('id') id: string,
+    @Param('winnerId') winnerId: string,
+    @Request() req: Request & { user: { id: string; role: string } },
+  ) {
+    return this.tournamentService.declareWinner(id, winnerId, req.user);
   }
 
   @Public()

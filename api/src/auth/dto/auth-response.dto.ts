@@ -6,7 +6,7 @@ export class AuthResponseDto {
 
   @IsString()
   username!: string;
-  
+
   @IsString()
   email!: string;
 

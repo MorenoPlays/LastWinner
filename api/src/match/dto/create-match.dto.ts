@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsOptional, IsDate } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsDate, IsUUID } from 'class-validator';
 import { MatchStatus } from '@prisma/client';
 
 export class CreateMatchDto {
@@ -10,13 +10,20 @@ export class CreateMatchDto {
   @IsInt()
   matchNumber!: number;
 
-  player1Id!: string;
-  player2Id!: string;
+  @IsOptional()
+  @IsUUID()
+  player1Id?: string;
 
   @IsOptional()
+  @IsUUID()
+  player2Id?: string;
+
+  @IsOptional()
+  @IsUUID()
   winnerId?: string;
 
   @IsOptional()
+  @IsUUID()
   loserId?: string;
 
   @IsOptional()
@@ -30,4 +37,12 @@ export class CreateMatchDto {
   @IsOptional()
   @IsDate()
   finishedAt?: Date;
+
+  @IsOptional()
+  @IsUUID()
+  nextMatchId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  loserMatchId?: string;
 }

@@ -16,13 +16,16 @@ export class GameService {
   }
 
   async findOne(id: string) {
-    const game = await this.prisma.game.findUnique({ where: { id }, include: {
-      tournaments:{
-        include:{
-          participants:true
-        }
-      }
-    } });
+    const game = await this.prisma.game.findUnique({
+      where: { id },
+      include: {
+        tournaments: {
+          include: {
+            participants: true,
+          },
+        },
+      },
+    });
     if (!game) throw new NotFoundException('Game not found');
     return game;
   }

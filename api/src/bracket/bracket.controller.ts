@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BracketService } from './bracket.service';
 import { CreateBracketDto } from './dto/create-bracket.dto';
 import { UpdateBracketDto } from './dto/update-bracket.dto';

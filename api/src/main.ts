@@ -18,12 +18,14 @@ export async function bootstrap() {
   // - transform:true           → converts payload types (e.g. string → number)
   // - whitelist:true           → strips properties not present in the DTO
   // - forbidNonWhitelisted:true → throws 400 if unknown properties are sent
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transformOptions: { enableImplicitConversion: true },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
 
   // Serializer Interceptor: strips out sensitive fields (e.g. passwordHash)
   // when objects are returned from any controller, except where @Exclude()

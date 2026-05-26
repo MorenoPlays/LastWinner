@@ -1,5 +1,16 @@
-import { IsOptional, IsString, IsUrl, IsString as IsBase64 } from 'class-validator';
-import { registerDecorator, ValidationOptions,MinLength,MaxLength,IsEmail } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUrl,
+  IsString as IsBase64,
+} from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  MinLength,
+  MaxLength,
+  IsEmail,
+} from 'class-validator';
 
 function IsDataUrl(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -10,7 +21,10 @@ function IsDataUrl(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any) {
-          return !value || typeof value === 'string' && value.startsWith('data:image/');
+          return (
+            !value ||
+            (typeof value === 'string' && value.startsWith('data:image/'))
+          );
         },
         defaultMessage() {
           return 'Deve ser uma URL válida ou base64 de imagem (data:image/...)';

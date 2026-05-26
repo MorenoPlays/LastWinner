@@ -21,7 +21,7 @@ export class GameController {
   constructor(private readonly gameService: GameService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'ORGANIZER')
   @Post()
   create(@Body() createGameDto: CreateGameDto) {
     return this.gameService.create(createGameDto);

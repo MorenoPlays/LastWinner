@@ -222,8 +222,8 @@ model Match {
   roundNumber   Int
   matchNumber   Int
 
-  player1Id     String
-  player2Id     String
+  player1Id     String?
+  player2Id     String?
 
   winnerId      String?
   loserId       String?
@@ -233,10 +233,23 @@ model Match {
   scheduledAt   DateTime?
   finishedAt    DateTime?
 
+  // 🔥 NEXT MATCH (WINNER FLOW)
+  nextMatchId   String?
+
+  // 🔥 LOSER FLOW (DOUBLE ELIMINATION)
+  loserMatchId  String?
+
   bracket Bracket @relation(fields: [bracketId], references: [id])
   MatchStats MatchStats[]
-  player1 User @relation("Player1", fields: [player1Id], references: [id])
-  player2 User @relation("Player2", fields: [player2Id], references: [id])
+
+  player1 User? @relation("Player1", fields: [player1Id], references: [id])
+  player2 User? @relation("Player2", fields: [player2Id], references: [id])
+
+  nextMatch   Match? @relation("NextMatch", fields: [nextMatchId], references: [id])
+  previousMatches Match[] @relation("NextMatch")
+
+  loserMatch   Match? @relation("LoserMatch", fields: [loserMatchId], references: [id])
+  previousLoserMatches Match[] @relation("LoserMatch")
 }
 
 // ===================== MATCH STATS =====================
