@@ -6,6 +6,7 @@ import Link from "next/link";
 /* eslint-disable @next/next/no-img-element */
 import { useAuth } from "@/features/auth/useAuth";
 import { authApi } from "@/lib/api";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { Button } from "@/components/ui/Button";
 
 interface Country { name: string; code: string }
@@ -30,8 +31,11 @@ export default function SettingsPage() {
   const [countryOpen, setCountryOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) { router.push("/login"); return; }
@@ -77,28 +81,52 @@ export default function SettingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); setSaved(false);
+    setError(""); 
+    setSaved(false);
+    setSubmitting(true);
+    
     try {
-      const dto: any = { username, email, bio, country, avatarUrl };
+      let finalAvatarUrl = avatarUrl;
+
+      // Se há um arquivo selecionado, fazer upload para Cloudinary
+      if (avatarFile) {
+        try {
+          const uploadedImage = await uploadImageToCloudinary(avatarFile);
+          finalAvatarUrl = uploadedImage.secure_url;
+        } catch (uploadError: any) {
+          throw new Error(`Erro ao enviar avatar: ${uploadError.message}`);
+        }
+      }
+
+      const dto: any = { username, email, bio, country, avatarUrl: finalAvatarUrl };
       if (password) dto.password = password;
       await authApi.updateProfile(dto);
       await refresh();
       setSaved(true);
       setPassword("");
+      setAvatarFile(null);
+      setAvatarPreview("");
       router.push("/profile");
       setTimeout(() => setSaved(false), 4000);
     } catch (err: any) {
       setError(err.message || "Erro ao guardar.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Enviar como FormData para um endpoint /auth/me/avatar hipotético
-    // Por enquanto, lê como data URL
+    
+    // Guardar o arquivo para upload posterior
+    setAvatarFile(file);
+    
+    // Criar pré-visualização
     const reader = new FileReader();
-    reader.onload = () => setAvatarUrl(reader.result as string);
+    reader.onload = () => {
+      setAvatarPreview(reader.result as string);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -140,11 +168,18 @@ export default function SettingsPage() {
           <h2 className="mb-4 text-lg font-semibold text-indigo-300">Avatar</h2>
           <div className="flex items-center gap-5">
             <div className="relative h-20 w-20 shrink-0">
-              {avatarUrl ? (
+              {avatarPreview ? (
+                <img src={avatarPreview} alt={username} className="rounded-2xl object-cover ring-2 ring-violet-500/30 h-20 w-20" />
+              ) : avatarUrl ? (
                 <img src={avatarUrl} alt={username} className="rounded-2xl object-cover ring-2 ring-violet-500/30 h-20 w-20" />
               ) : (
                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40">
                   {username[0]?.toUpperCase() || "?"}
+                </div>
+              )}
+              {avatarFile && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-green-500/40 ring-2 ring-green-400/60">
+                  <span className="text-xs font-bold text-white">✓</span>
                 </div>
               )}
             </div>
@@ -155,18 +190,23 @@ export default function SettingsPage() {
                 onChange={(e) => setAvatarUrl(e.target.value)}
                 placeholder="https://exemplo.com/avatar.png"
                 className={inputCls}
+                disabled={submitting}
               />
               <div className="flex items-center gap-2">
                 <span className="text-xs text-zinc-500">ou</span>
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="rounded-lg border border-violet-500/30 px-3 py-1.5 text-xs font-semibold text-violet-300 transition-colors hover:bg-violet-500/15"
+                  disabled={submitting}
+                  className="rounded-lg border border-violet-500/30 px-3 py-1.5 text-xs font-semibold text-violet-300 transition-colors hover:bg-violet-500/15 disabled:opacity-50"
                 >
                   📁 Carregar ficheiro
                 </button>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFile} />
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFile} disabled={submitting} />
               </div>
+              {avatarFile && (
+                <p className="text-xs text-green-400">✓ Ficheiro selecionado: {avatarFile.name} (será enviado ao submeter)</p>
+              )}
             </div>
           </div>
         </div>
@@ -231,8 +271,8 @@ export default function SettingsPage() {
         </div>
 
         <div className="flex gap-3">
-          <Button type="submit" className="flex-1 rounded-lg py-2.5">Guardar Alterações</Button>
-          <Link href="/profile"><Button variant="secondary" className="rounded-lg">Cancelar</Button></Link>
+          <Button type="submit" disabled={submitting} className="flex-1 rounded-lg py-2.5">{submitting ? "A enviar…" : "Guardar Alterações"}</Button>
+          <Link href="/profile"><Button variant="secondary" className="rounded-lg" disabled={submitting}>Cancelar</Button></Link>
         </div>
       </form>
     </div>
