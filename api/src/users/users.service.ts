@@ -53,6 +53,7 @@ export class UsersService {
         email: true,
         role: true,
         avatarUrl: true,
+        phoneNumber:true,
         bio: true,
         country: true,
         elo: true,

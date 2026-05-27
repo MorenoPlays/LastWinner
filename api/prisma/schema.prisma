@@ -83,6 +83,8 @@ model User {
   bio           String?
   country       String?
 
+  phoneNumber   String?
+
   role          Role     @default(USER)
 
   elo           Int      @default(1000)

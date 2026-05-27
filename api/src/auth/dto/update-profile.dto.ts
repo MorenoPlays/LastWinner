@@ -48,6 +48,11 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
+  @MinLength(9)
+  phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
   @MinLength(8)
   password?: string;
 

@@ -78,6 +78,7 @@ export class AuthService {
     if (dto.bio !== undefined) data.bio = dto.bio;
     if (dto.country !== undefined) data.country = dto.country;
     if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl;
+    if (dto.phoneNumber !== undefined) data.phoneNumber = dto.phoneNumber;
 
     const updated = await this.usersService['prisma'].user.update({
       where: { id: userId },
