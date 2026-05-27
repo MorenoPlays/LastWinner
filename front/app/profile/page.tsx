@@ -135,6 +135,10 @@ export default function ProfilePage() {
               <dd className="font-semibold text-zinc-200">{user.role}</dd>
             </div>
             <div>
+              <dt className="text-zinc-500">Número de Telefone</dt>
+              <dd className="font-semibold text-zinc-200">{user.phoneNumber || "—"}</dd>
+            </div>
+            <div>
               <dt className="text-zinc-500">País</dt>
               <dd className="font-semibold text-zinc-200">{user.country || "—"}</dd>
             </div>

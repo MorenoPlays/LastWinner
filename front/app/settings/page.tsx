@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [bio, setBio] = useState("");
   const [country, setCountry] = useState("");
   const [countrySearch, setCountrySearch] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [countryList, setCountryList] = useState<Country[]>([]);
   const [countryOpen, setCountryOpen] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,7 @@ export default function SettingsPage() {
       setEmail(user.email);
       setBio(user.bio || "");
       setCountry(user.country || "");
+      setPhoneNumber(user.phoneNumber || "");
       setAvatarUrl(user.avatarUrl || "");
     }
   }, [authLoading, user, router]);
@@ -98,7 +100,7 @@ export default function SettingsPage() {
         }
       }
 
-      const dto: any = { username, email, bio, country, avatarUrl: finalAvatarUrl };
+      const dto: any = { username, email, bio, phoneNumber, country, avatarUrl: finalAvatarUrl };
       if (password) dto.password = password;
       await authApi.updateProfile(dto);
       await refresh();
@@ -223,6 +225,10 @@ export default function SettingsPage() {
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-sky-300">Email</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputCls} placeholder="email@exemplo.com" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-sky-300">Número de Telefone</label>
+              <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className={inputCls} placeholder="912345678" />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-sky-300">País</label>

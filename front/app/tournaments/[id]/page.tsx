@@ -269,7 +269,7 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
            {tournament.brackets && tournament.brackets.length > 0 && (
              <div className="space-y-4">
                <h2 className="text-lg font-semibold text-indigo-300">Bracket</h2>
-               <div className="mb-4">
+               {/* <div className="mb-4">
                  {tournament.status === 'OPEN' && canManage && (
                    <Button 
                      variant="outline"
@@ -288,7 +288,7 @@ export default function TournamentDetailPage({ params }: { params: Promise<{ id:
                      Iniciar Torneio
                    </Button>
                  )}
-               </div>
+               </div> */}
                <div className="glass-card rounded-2xl p-6">
                  {/* Fetch matches for the first bracket */}
                  {tournament.brackets[0]?.matches ? (

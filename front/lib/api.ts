@@ -72,15 +72,15 @@ export const authApi = {
       id: string; username: string; email: string; role: string;
       avatarUrl?: string; bio?: string; country?: string;
       elo: number; wins: number; losses: number; isVerified: boolean;
-      createdAt: string; updatedAt: string;
+      createdAt: string; updatedAt: string; phoneNumber?: string;
     }>("/auth/me"),
   updateProfile: (dto: {
     username?: string; email?: string; password?: string;
-    bio?: string; country?: string; avatarUrl?: string;
+    bio?: string; country?: string; avatarUrl?: string; phoneNumber?: string;
   }) =>
     api<{
       id: string; username: string; email: string; role: string;
-      avatarUrl?: string; bio?: string; country?: string;
+      avatarUrl?: string; bio?: string; country?: string; phoneNumber?: string;
       elo: number; wins: number; losses: number; isVerified: boolean;
       createdAt: string; updatedAt: string;
     }>("/auth/me", { method: "PATCH", body: JSON.stringify(dto) }),

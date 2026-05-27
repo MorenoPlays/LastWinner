@@ -66,6 +66,7 @@ export interface User {
   avatarUrl?: string;
   bio?: string;
   country?: string;
+  phoneNumber?: string;
   role: Role;
   elo: number;
   wins: number;
