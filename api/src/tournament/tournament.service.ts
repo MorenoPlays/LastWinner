@@ -18,10 +18,19 @@ export class TournamentService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createTournamentDto: CreateTournamentDto, user: RequestUser) {
+    const startDate = createTournamentDto.startDate
+      ? new Date(createTournamentDto.startDate)
+      : undefined;
+    const endDate = createTournamentDto.endDate
+      ? new Date(createTournamentDto.endDate)
+      : undefined;
+
     return this.prisma.tournament.create({
       data: {
         ...createTournamentDto,
         organizerId: createTournamentDto.organizerId || user.id,
+        startDate,
+        endDate,
       },
     });
   }
@@ -29,8 +38,11 @@ export class TournamentService {
   findAll() {
     return this.prisma.tournament.findMany({
       include: {
-        organizer: { select: { id: true, username: true } },
+        game: true,
+        organizer: { select: { id: true, username: true, avatarUrl: true } },
         participants: { select: { id: true, status: true } },
+        likes: true,
+        messages: { select: { id: true } },
       },
     });
   }
@@ -39,8 +51,11 @@ export class TournamentService {
     return this.prisma.tournament.findMany({
       where: { gameId },
       include: {
-        organizer: { select: { id: true, username: true } },
+        game: true,
+        organizer: { select: { id: true, username: true, avatarUrl: true } },
         participants: { select: { id: true, status: true } },
+        likes: true,
+        messages: { select: { id: true } },
       },
     });
   }

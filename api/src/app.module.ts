@@ -15,8 +15,11 @@ import { TournamentParticipantModule } from './tournament-participant/tournament
 import { BracketModule } from './bracket/bracket.module';
 import { MatchModule } from './match/match.module';
 import { TournamentMessageModule } from './tournament-message/tournament-message.module';
+import { PostModule } from './post/post.module';
+import { CommentModule } from './comment/comment.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ClipModule } from './clip/clip.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -33,6 +36,9 @@ import { AppService } from './app.service';
     BracketModule,
     MatchModule,
     TournamentMessageModule,
+    PostModule,
+    CommentModule,
+    ClipModule,
   ],
   controllers: [AppController],
   providers: [

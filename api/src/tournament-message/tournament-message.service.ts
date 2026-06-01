@@ -19,6 +19,13 @@ export class TournamentMessageService {
     });
   }
 
+  findByTournament(tournamentId: string) {
+    return this.prisma.tournamentMessage.findMany({
+      where: { tournamentId },
+      include: { user: true, tournament: true },
+    });
+  }
+
   async findOne(id: string) {
     const msg = await this.prisma.tournamentMessage.findUnique({
       where: { id },

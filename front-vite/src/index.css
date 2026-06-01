@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0d0d14;
+  --foreground: #f0f0ff;
+  --card: #161622;
+  --card-foreground: #f0f0ff;
+  --popover: #161622;
+  --popover-foreground: #f0f0ff;
+  --primary: #3dd1f7;
+  --primary-foreground: #0d0d14;
+  --secondary: #222233;
+  --secondary-foreground: #e6e6f0;
+  --muted: #20202e;
+  --muted-foreground: #a6a6c0;
+  --accent: #bc4dff;
+  --accent-foreground: #0d0d14;
+  --destructive: #ff5a3d;
+  --destructive-foreground: #f0f0ff;
+  --success: #4dcc70;
+  --success-foreground: #0d0d14;
+  --border: #33334d;
+  --input: #2a2a3a;
+  --ring: #3dd1f7;
+  --radius: 0.75rem;
+}
+
+.glass-card {
+  background: rgba(22, 22, 34, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(51, 51, 77, 0.5);
+  border-radius: 1rem;
+}
+
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.2);
+}
+
+.bg-linear-to-r {
+  background: linear-gradient(to right, rgba(61, 209, 247, 0.4), rgba(188, 77, 255, 0.4));
+}
+
+.bg-linear-to-br {
+  background: linear-gradient(to bottom right, #3dd1f7, #bc4dff);
+}
+
+@layer utilities {
+  .bg-background { background-color: var(--background); }
+  .text-foreground { color: var(--foreground); }
+  .text-muted-foreground { color: var(--muted-foreground); }
+  .text-primary { color: var(--primary); }
+  .bg-primary { background-color: var(--primary); }
+  .text-primary-foreground { color: var(--primary-foreground); }
+  .border-border { border-color: var(--border); }
+  .border-border\/50 { border-color: rgba(51, 51, 77, 0.5); }
+  .border-success { border-color: var(--success); }
+  .border-success\/30 { border-color: rgba(77, 204, 112, 0.3); }
+  .bg-card { background-color: var(--card); }
+  .bg-card\/50 { background-color: rgba(22, 22, 34, 0.5); }
+  .bg-muted { background-color: var(--muted); }
+  .bg-muted\/30 { background-color: rgba(32, 32, 46, 0.3); }
+  .bg-muted\/50 { background-color: rgba(32, 32, 46, 0.5); }
+  .bg-muted\/80 { background-color: rgba(32, 32, 46, 0.8); }
+  .hover\:bg-muted\/50:hover { background-color: rgba(32, 32, 46, 0.5); }
+  .hover\:text-foreground:hover { color: var(--foreground); }
+  .hover\:text-primary:hover { color: var(--primary); }
+  .text-success { color: var(--success); }
+  .bg-success\/10 { background-color: rgba(77, 204, 112, 0.1); }
+  .bg-success\/20 { background-color: rgba(77, 204, 112, 0.2); }
+  .text-destructive { color: var(--destructive); }
+  .text-accent { color: var(--accent); }
+  .bg-red-500 { background-color: #ef4444; }
+  .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.2); }
+  .bg-destructive\/20 { background-color: rgba(255, 90, 61, 0.2); }
+  .hover\:bg-green-500\/10:hover { background-color: rgba(34, 197, 94, 0.1); }
+  .text-red-400 { color: #f87171; }
+  .bg-primary\/20 { background-color: rgba(61, 209, 247, 0.2); }
+  .text-zinc-100 { color: #f4f4f5; }
+  .text-zinc-200 { color: #e4e4e7; }
+  .text-zinc-300 { color: #d4d4d8; }
+  .text-zinc-400 { color: #a1a1aa; }
+  .text-zinc-500 { color: #71717a; }
+  .text-indigo-300 { color: #a1a1aa; }
+  .text-indigo-400 { color: #818cf8; }
+  .text-violet-300 { color: #c4b5fd; }
+  .text-violet-400 { color: #a78bfa; }
+  .text-amber-400 { color: #facc15; }
+  .text-green-400 { color: #4ade80; }
+  .text-sky-300 { color: #7dd3fc; }
+  .text-red-300 { color: #fca5a5; }
+  .text-green-300 { color: #86efac; }
+  .text-amber-500 { color: #f59e0b; }
+  .text-indigo-500 { color: #6366f1; }
+  .bg-zinc-500\/30 { background-color: rgba(113, 113, 122, 0.3); }
+  .bg-red-500\/30 { background-color: rgba(239, 68, 68, 0.3); }
+  .bg-green-500\/30 { background-color: rgba(74, 222, 128, 0.3); }
+  .bg-sky-500\/20 { background-color: rgba(125, 211, 252, 0.2); }
+  .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.3); }
+  .bg-green-500\/20 { background-color: rgba(74, 222, 128, 0.3); }
+  .ring-1 { ring-width: 1px; }
+  .ring-indigo-500\/20 { ring-color: rgba(99, 102, 241, 0.2); }
+  .ring-green-500\/20 { ring-color: rgba(74, 222, 128, 0.2); }
+  .ring-red-500\/20 { ring-color: rgba(239, 68, 68, 0.2); }
+  .ring-amber-500\/20 { ring-color: rgba(251, 191, 36, 0.2); }
+  .ring-slate-900 { ring-color: #0f172a; }
+  .from-indigo-700\/40 { --tw-gradient-from: rgba(61, 209, 247, 0.4); }
+  .via-violet-700\/40 { --tw-gradient-to: rgba(188, 77, 255, 0.4); }
+  .from-indigo-500 { --tw-gradient-from: #6366f1; }
+  .to-purple-600 { --tw-gradient-to: #d946ef; }
+  .shadow-indigo-500\/40 { --tw-shadow-color: rgba(99, 102, 241, 0.4); --tw-shadow: var(--tw-shadow-color); }
+  .bg-slate-800\/50 { background-color: rgba(30, 41, 59, 0.5); }
+}

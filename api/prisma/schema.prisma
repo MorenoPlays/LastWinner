@@ -109,6 +109,11 @@ model User {
 
   notifications Notification[]
   clips         Clip[]
+  posts         Post[]
+  postLikes     PostLike[]
+  comments      Comment[]
+  commentLikes  CommentLike[]
+  tournamentLikes TournamentLike[]
   GroupChat     GroupChat[]
   GroupChatMember GroupChatMember[]
   groupMessages GroupChatMessage[]
@@ -181,6 +186,7 @@ model Tournament {
   rewards       TournamentReward[]
   messages      TournamentMessage[]
   groupChats    GroupChat[]
+  likes         TournamentLike[]
 }
 
 // ===================== PARTICIPANTS =====================
@@ -398,6 +404,89 @@ model Clip {
   user User @relation(fields: [userId], references: [id])
   game Game @relation(fields: [gameId], references: [id])
 }
+
+// ===================== POSTS =====================
+
+model Post {
+  id            String @id @default(uuid())
+
+  userId        String
+  tournamentId  String?
+  matchId       String?
+
+  content       String
+  imageUrl      String?
+  videoUrl      String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User @relation(fields: [userId], references: [id])
+  likes         PostLike[]
+  comments      Comment[]
+}
+
+model PostLike {
+  id        String @id @default(uuid())
+
+  postId    String
+  userId    String
+
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+// ===================== COMMENTS =====================
+
+model Comment {
+  id        String @id @default(uuid())
+
+  postId    String
+  userId    String
+
+  content   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post      Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
+}
+
+model CommentLike {
+  id        String @id @default(uuid())
+
+  commentId String
+  userId    String
+
+  createdAt DateTime @default(now())
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model TournamentLike {
+  id            String @id @default(uuid())
+
+  tournamentId  String
+  userId        String
+
+  createdAt     DateTime @default(now())
+
+  tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+}
+
+
 
 // ===================== NOTIFICATIONS =====================
 

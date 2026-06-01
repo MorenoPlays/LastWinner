@@ -27,6 +27,27 @@ export class UsersService {
     return result;
   }
 
+  async findAll() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatarUrl: true,
+        phoneNumber:true,
+        bio: true,
+        country: true,
+        elo: true,
+        wins: true,
+        losses: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async register(registerAuthDto: RegisterAuthDto) {
     const { username, email, password, role } = registerAuthDto;
     if (await this.findByEmail(email))
@@ -42,6 +63,28 @@ export class UsersService {
     });
     const { passwordHash, ...rest } = user;
     return rest;
+  }
+
+  async findOne(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatarUrl: true,
+        phoneNumber:true,
+        bio: true,
+        country: true,
+        elo: true,
+        wins: true,
+        losses: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 
   async me(userId: string) {

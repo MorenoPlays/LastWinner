@@ -10,6 +10,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { TournamentService } from './tournament.service';
+import { TournamentLikeService } from './tournament-like.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
@@ -19,7 +20,10 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('tournament')
 export class TournamentController {
-  constructor(private readonly tournamentService: TournamentService) {}
+  constructor(
+    private readonly tournamentService: TournamentService,
+    private readonly tournamentLikeService: TournamentLikeService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -74,6 +78,24 @@ export class TournamentController {
     return this.tournamentService.findByGameId(gameId);
   }
 
+  @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
+  likeTournament(
+    @Param('id') id: string,
+    @Request() req: Request & { user: { id: string } },
+  ) {
+    return this.tournamentLikeService.likeTournament(id, req.user.id);
+  }
+
+  @Delete(':id/like')
+  @UseGuards(JwtAuthGuard)
+  unlikeTournament(
+    @Param('id') id: string,
+    @Request() req: Request & { user: { id: string } },
+  ) {
+    return this.tournamentLikeService.unlikeTournament(id, req.user.id);
+  }
+
   @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -101,3 +123,4 @@ export class TournamentController {
     return this.tournamentService.remove(id, req.user);
   }
 }
+

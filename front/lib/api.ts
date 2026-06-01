@@ -1,3 +1,5 @@
+import { User, Tournament, Game, TournamentParticipant, Bracket, Match, MatchStats, TeamRole, GroupChat, GroupChatMessage, TournamentMessage, Clip, Notification, Achievement, UserAchievement } from "./types";
+
 const API_BASE = process.env.NEXT_PUBLIC_API || "http://localhost:3001";
 
 function getToken(): string | null {
@@ -181,13 +183,54 @@ export const participantsApi = {
 
 // ─── Tournament Messages ─────────────────────────────────────────────────
 export const messagesApi = {
-  getAll: () => api<any[]>("/tournament-message"),
-  getOne: (id: string) => api<any>(`/tournament-message/${id}`),
-  create: (dto: { tournamentId: string; userId: string; message: string }) =>
-    api<any>("/tournament-message", { method: "POST", body: JSON.stringify(dto) }),
-  update: (id: string, dto: { message?: string }) =>
-    api<any>(`/tournament-message/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
-  delete: (id: string) => api<void>(`/tournament-message/${id}`, { method: "DELETE" }),
+   getAll: () => api<any[]>("/tournament-message"),
+   getOne: (id: string) => api<any>(`/tournament-message/${id}`),
+   create: (dto: { tournamentId: string; userId: string; message: string }) =>
+     api<any>("/tournament-message", { method: "POST", body: JSON.stringify(dto) }),
+   update: (id: string, dto: { message?: string }) =>
+     api<any>(`/tournament-message/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
+   delete: (id: string) => api<void>(`/tournament-message/${id}`, { method: "DELETE" }),
+};
+
+// ─── Posts ───────────────────────────────────────────────────────────────
+export const postsApi = {
+   getAll: () => api<any[]>("/post"),
+   getByTournament: (tournamentId: string) => api<any[]>(`/post/tournament/${tournamentId}`),
+   getByUser: (userId: string) => api<any[]>(`/post/user/${userId}`),
+   getOne: (id: string) => api<any>(`/post/${id}`),
+   create: (dto: {
+     userId: string;
+     content: string;
+     tournamentId?: string;
+     matchId?: string;
+     imageUrl?: string;
+     videoUrl?: string;
+   }) => api<any>("/post", { method: "POST", body: JSON.stringify(dto) }),
+   update: (id: string, dto: Record<string, any>) =>
+     api<any>(`/post/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
+   delete: (id: string) => api<void>(`/post/${id}`, { method: "DELETE" }),
+   like: (postId: string) => api<any>(`/post/${postId}/like`, { method: "POST" }),
+   unlike: (postId: string) => api<void>(`/post/${postId}/like`, { method: "DELETE" }),
+};
+
+// ─── Comments ────────────────────────────────────────────────────────────
+export const commentsApi = {
+   getByPost: (postId: string) => api<any[]>(`/comment/post/${postId}`),
+   create: (dto: {
+     postId: string;
+     userId: string;
+     content: string;
+   }) => api<any>("/comment", { method: "POST", body: JSON.stringify(dto) }),
+   update: (id: string, dto: Record<string, any>) =>
+     api<any>(`/comment/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
+   delete: (id: string) => api<void>(`/comment/${id}`, { method: "DELETE" }),
+   like: (commentId: string) => api<any>(`/comment/${commentId}/like`, { method: "POST" }),
+   unlike: (commentId: string) => api<void>(`/comment/${commentId}/like`, { method: "DELETE" }),
+};
+
+// ─── Search ──────────────────────────────────────────────────────────────
+export const searchApi = {
+   users: (query: string) => api<any[]>(`/users?q=${query}`),
 };
 
 // ─── Admin — Users ─────────────────────────────────────────────────────────

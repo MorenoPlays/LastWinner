@@ -8,6 +8,7 @@ const NAV = [
   { href: "/", label: "Inicio" },
   { href: "/games", label: "Jogos" },
   { href: "/tournaments", label: "Torneios" },
+  { href: "/players", label: "Jogadores" },
 ];
 
 export default function Navbar() {
@@ -34,8 +35,20 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Auth — right corner */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+        {/* Right side — messages and auth */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {user && (
+            <Link
+              href="/messages"
+              title="Mensagens"
+              className="rounded-full p-2 text-sm font-semibold text-violet-300 transition-colors hover:bg-violet-500/20"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+              </svg>
+            </Link>
+          )}
+          
           {user ? (
             <UserMenu />
           ) : (

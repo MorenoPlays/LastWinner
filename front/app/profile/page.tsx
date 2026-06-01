@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
       {/* Profile header card */}
       <div className="glass-card card-hover mb-6 overflow-hidden rounded-2xl">
-        <div className="relative h-28 bg-gradient-to-r from-indigo-700/40 via-violet-700/40 to-indigo-700/40" />
+        <div className="relative h-28 bg-linear-to-r from-indigo-700/40 via-violet-700/40 to-indigo-700/40" />
         <div className="relative px-6 pb-6">
           {/* Avatar */}
           <div className="-mt-10 mb-3 flex items-end gap-4">
@@ -70,7 +70,7 @@ export default function ProfilePage() {
               {user.avatarUrl ? (
                 <img src={user.avatarUrl} alt={user.username} className="rounded-2xl object-cover ring-4 ring-slate-900 h-20 w-20" />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40 ring-4 ring-slate-900">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40">
                   {initial}
                 </div>
               )}
@@ -198,7 +198,7 @@ export default function ProfilePage() {
                   key={u.id}
                   className="flex items-center gap-4 rounded-xl bg-slate-800/50 px-4 py-3 text-sm"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-base font-extrabold text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 text-base font-extrabold text-white">
                     {u.username?.[0]?.toUpperCase() || "?"}
                   </span>
                   <div className="flex-1 min-w-0">

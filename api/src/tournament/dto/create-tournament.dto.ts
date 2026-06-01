@@ -4,52 +4,60 @@ import {
   TournamentStatus,
   TournamentMode,
 } from '@prisma/client';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 export class CreateTournamentDto {
+  @IsOptional()
   @IsString()
-  organizerId!: string;
+  organizerId?: string;
 
   @IsString()
   title!: string;
 
+  @IsOptional()
   @IsString()
   description?: string;
 
-  @IsString()
+  @IsEnum(TournamentFormat)
   format!: TournamentFormat;
 
-  @IsString()
+  @IsEnum(TournamentMode)
   mode!: TournamentMode;
 
-  @IsString()
   @IsOptional()
+  @IsEnum(TournamentStatus)
   status?: TournamentStatus;
 
   @IsNumber()
   maxPlayers!: number;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   entryFee?: number;
 
-  @IsString()
   @IsOptional()
+  @IsEnum(CurrencyType)
   currency?: CurrencyType;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   prizePool?: number;
 
-  @IsString()
   @IsOptional()
-  startDate?: Date;
+  @IsDateString()
+  startDate?: string;
 
-  @IsString()
   @IsOptional()
-  endDate?: Date;
+  @IsDateString()
+  endDate?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   bannerUrl?: string;
 
   @IsString()

@@ -1,0 +1,485 @@
+import { useParams } from 'react-router-dom'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { MainNav } from '../components/main-nav'
+import { TournamentHeader } from '../tournament/tournament-header'
+import { TournamentOverview } from '../tournament/tournament-overview'
+import { ParticipantList } from '../tournament/participant-card'
+import { TournamentRules } from '../tournament/tournament-rules'
+import { BracketView } from '../tournament/bracket-view'
+import { MatchScoreModal } from '../tournament/MatchScoreModal'
+import { LayoutGrid, Users, ScrollText, Play, UserPlus, Trophy, Tornado } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { apiGet, apiPost, apiPatch } from '@/lib/api'
+import { useAuth } from '@/hooks/useAuth'
+import { Link } from 'react-router-dom'
+import type { Tournament, Participant, BracketData, User, Match } from '@/lib/types'
+
+interface ApiUser {
+  id: string
+  username: string
+  email: string
+  role: string
+  avatarUrl?: string | null
+  country?: string | null
+}
+
+interface ApiTournament {
+  id: string
+  title: string
+  description?: string
+  gameId: string
+  format?: string
+  status?: string
+  maxPlayers?: number
+  teamSize?: number
+  prizePool?: number
+  currency?: string
+  startDate?: string
+  endDate?: string
+  bannerUrl?: string | null
+  organizer?: ApiUser
+  streamUrl?: string | null
+  isFeatured?: boolean
+  participants?: any[]
+  brackets?: {
+    id: string
+    type: string
+    matches: any[]
+  }[]
+}
+
+function mapUser(apiUser: ApiUser | undefined) {
+  if (!apiUser) return { id: '', username: 'Unknown', display_name: 'Unknown', avatar_url: null, country_code: null }
+  return {
+    id: apiUser.id,
+    username: apiUser.username || 'unknown',
+    display_name: apiUser.username || 'Unknown',
+    avatar_url: apiUser.avatarUrl || null,
+    country_code: apiUser.country || null,
+  }
+}
+
+function mapTournamentFormat(format?: string): Tournament['format'] {
+  const formatMap: Record<string, Tournament['format']> = {
+    'SINGLE_ELIMINATION': 'single_elimination',
+    'DOUBLE_ELIMINATION': 'double_elimination',
+    'ROUND_ROBIN': 'round_robin',
+    'SWISS': 'swiss',
+    'single_elimination': 'single_elimination',
+    'double_elimination': 'double_elimination',
+    'round_robin': 'round_robin',
+    'swiss': 'swiss',
+  }
+  return formatMap[format?.toUpperCase() || ''] || 'single_elimination'
+}
+
+function mapTournamentStatus(status?: string): Tournament['status'] {
+  const statusMap: Record<string, Tournament['status']> = {
+    'draft': 'draft',
+    'open': 'registration',
+    'ongoing': 'in_progress',
+    'finished': 'completed',
+    'canceled': 'cancelled',
+  }
+  return statusMap[status?.toLowerCase() || ''] || 'draft'
+}
+
+export function TournamentPage() {
+  const { id } = useParams()
+  const { user: authUser } = useAuth()
+  const [tournament, setTournament] = useState<Tournament | null>(null)
+  const [bracketData, setBracketData] = useState<BracketData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [registering, setRegistering] = useState(false)
+  const [starting, setStarting] = useState(false)
+  const [openingRegistration, setOpeningRegistration] = useState(false)
+
+  useEffect(() => {
+    if (!id) return
+
+    apiGet<ApiTournament>(`/tournament/${id}`)
+      .then(apiTournament => {
+        const mapped: Tournament = {
+          id: apiTournament.id,
+          title: apiTournament.title || 'Tournament',
+          slug: apiTournament.title?.toLowerCase().replace(/\s+/g, '-') || 'tournament',
+          description: apiTournament.description || '',
+          game: {
+            id: apiTournament.gameId || 'g1',
+            name: 'Game',
+            slug: 'game',
+            icon_url: null,
+            banner_url: null,
+          },
+          format: mapTournamentFormat(apiTournament.format),
+          status: mapTournamentStatus(apiTournament.status),
+          maxPlayers: apiTournament.maxPlayers || 16,
+          //participants: apiTournament.participants?.length || 0,
+          team_size: apiTournament.teamSize || 5,
+          prizePool: apiTournament.prizePool || null,
+          currency: apiTournament.currency || 'USD',
+          registration_start: '',
+          registration_end: '',
+          startDate: apiTournament.startDate || new Date().toISOString(),
+          endDate: apiTournament.endDate || null,
+          rules: '',
+          bannerUrl: apiTournament.bannerUrl || null,
+          organizer: mapUser(apiTournament.organizer),
+          stream_url: apiTournament.streamUrl || null,
+          is_featured: apiTournament.isFeatured || false,
+          participants: (apiTournament.participants || []).map((p: any, i: number) => {
+            const statusMap: Record<string, Participant['status']> = {
+              'REGISTERED': 'checked_in',
+              'PENDING': 'pending',
+              'CHECKED_IN': 'checked_in',
+              'ELIMINATED': 'eliminated',
+              'WINNER': 'winner',
+            }
+            return {
+              id: p.id,
+              tournament_id: apiTournament.id,
+              user: p.userId ? {
+                id: p.userId,
+                username: p.user?.username || 'unknown',
+                display_name: p.user?.username || 'Unknown',
+                avatar_url: p.user?.avatarUrl || null,
+                country_code: p.user?.country || null,
+                email: p.user?.email,
+                role: p.user?.role,
+                elo: p.user?.elo,
+                wins: p.user?.wins || 0,
+                losses: p.user?.losses || 0,
+                isVerified: p.user?.isVerified,
+                phoneNumber: p.user?.phoneNumber,
+                country: p.user?.country,
+                bio: p.user?.bio,
+                createdAt: p.user?.createdAt,
+                updatedAt: p.user?.updatedAt,
+                avatarUrl: p.user?.avatarUrl
+              } : null,
+              team: p.teamId ? {
+                id: p.teamId,
+                name: p.team?.name || 'Unknown Team',
+                tag: p.team?.tag || '',
+                logo_url: p.team?.logoUrl || null,
+                captain: p.team?.captain ? {
+                  id: p.team?.captain?.id || '',
+                  username: p.team?.captain?.username || 'unknown',
+                  display_name: p.team?.captain?.username || 'Unknown',
+                  avatar_url: p.team?.captain?.avatarUrl || null,
+                  country_code: p.team?.captain?.countryCode || null,
+                  email: p.team?.captain?.email,
+                  role: p.team?.captain?.role,
+                  elo: p.team?.captain?.elo,
+                  wins: p.team?.captain?.wins || 0,
+                  losses: p.team?.captain?.losses || 0,
+                  isVerified: p.team?.captain?.isVerified,
+                  phoneNumber: p.team?.captain?.phoneNumber,
+                  country: p.team?.captain?.country,
+                  bio: p.team?.captain?.bio,
+                  createdAt: p.team?.captain?.createdAt,
+                  updatedAt: p.team?.captain?.updatedAt,
+                  avatarUrl: p.team?.captain?.avatarUrl
+                } : {
+                  id: 'unknown-captain',
+                  username: 'unknown',
+                  display_name: 'Unknown',
+                  avatar_url: null,
+                  country_code: null
+                } as User,
+                members: p.team?.members?.map((m: any) => ({
+                  id: m.id,
+                  username: m.username || 'unknown',
+                  display_name: m.username || 'Unknown',
+                  avatar_url: m.avatarUrl || null,
+                  country_code: m.countryCode || null,
+                })) || [],
+              } : null,
+              seed: p.seed || i + 1,
+              status: statusMap[p.status?.toUpperCase() || 'CHECKED_IN'] || 'checked_in',
+              checked_in_at: p.joinedAt || null,
+              wins: p.wins || 0,
+              losses: p.losses || 0,
+              is_team: !!p.teamId,
+            }
+          })
+        }
+        setTournament(mapped)
+
+        // Map bracket data
+        if (apiTournament.brackets && apiTournament.brackets.length > 0) {
+          // Take the first bracket (assuming single bracket per tournament)
+          const bracket = apiTournament.brackets[0];
+          
+          // Group matches by round number
+          const matchesByRound: Record<number, Match[]> = {};
+          
+          bracket.matches.forEach((match: any) => {
+            const roundNum = match.roundNumber || 1;
+            if (!matchesByRound[roundNum]) {
+              matchesByRound[roundNum] = [];
+            }
+            matchesByRound[roundNum].push({
+              id: match.id,
+              tournament_id: apiTournament.id,
+              round: match.roundNumber,
+              match_number: match.matchNumber,
+              bracket_position: '',
+              participant1: match.player1 ? {
+                id: match.player1.id,
+                user: {
+                  ...mapUser(match.player1),
+                  wins: 0,
+                  losses: 0,
+                },
+              } as any : null,
+              participant2: match.player2 ? {
+                id: match.player2.id,
+                user: {
+                  ...mapUser(match.player2),
+                  wins: 0,
+                  losses: 0,
+                },
+              } as any : null,
+              winner: match.winnerId ? {
+                id: match.winnerId,
+                user: { id: match.winnerId, username: 'Winner', display_name: 'W', avatar_url: null, country_code: null },
+              } as any : null,
+              score1: match.score1,
+              score2: match.score2,
+              status: match.status?.toLowerCase() || 'pending',
+              scheduled_time: null,
+              started_at: null,
+              completed_at: null,
+              stream_url: null,
+              vod_url: null,
+              next_match_id: match.nextMatchId,
+              is_losers_bracket: false,
+            });
+          });
+          
+          // Convert to rounds array format expected by BracketView
+          const rounds = Object.keys(matchesByRound)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map(roundNum => ({
+              round: roundNum,
+              name: `Round ${roundNum}`,
+              matches: matchesByRound[roundNum]
+            }));
+          
+          setBracketData({ format: mapped.format, rounds });
+        } else {
+          setBracketData(null);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch tournament:', error)
+        // Show more detailed error in development
+        if (import.meta.env?.DEV) {
+          alert(`Failed to load tournament: ${error.message || 'Unknown error'}`)
+        }
+        setTournament(null)
+        // setParticipants([])
+        // setBracketMatches([])
+        // setWbRounds(0)
+      })
+      .finally(() => setLoading(false))
+  }, [id])
+
+  const handleRegister = async () => {
+    if (!id) return
+    setRegistering(true)
+    try {
+      const token = localStorage.getItem('token')
+      const userid = authUser?.id   
+      if (!userid) throw new Error('User not authenticated')
+      await apiPost('/tournament-participant', { tournamentId: id, userId: userid } , token || undefined )
+      window.location.reload()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao registar no torneio.')
+    } finally {
+      setRegistering(false)
+    }
+  }
+
+  const handleStart = async () => {
+    if (!id) return
+    setStarting(true)
+    try {
+      const token = localStorage.getItem('token')
+      await apiPost(`/tournament/${id}/start`, {}, token || undefined)
+      window.location.reload()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao iniciar torneio.')
+    } finally {
+      setStarting(false)
+    }
+  }
+
+  const handleOpenRegistration = async () => {
+    if (!id) return
+    setOpeningRegistration(true)
+    try {
+      const token = localStorage.getItem('token')
+      await apiPatch(`/tournament/${id}`, { status: 'OPEN' }, token || undefined)
+      window.location.reload()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao abrir inscrições.')
+    } finally {
+      setOpeningRegistration(false)
+    }
+  }
+
+  const isRegistered = tournament?.participants.some(p => p.user?.id === authUser?.id)
+  const isOrganizer = tournament?.organizer?.id === authUser?.id || authUser?.role === 'ADMIN'
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNav />
+        <div className="container mx-auto px-4 py-6">
+          <p className="text-foreground">Carregando torneio...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  if (!tournament) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNav />
+        <div className="container mx-auto px-4 py-6">
+          <p className="text-foreground">Torneio não encontrado com ID: {id || 'nenhum'}</p>
+          {id && (
+            <p className="text-xs text-muted-foreground mt-2">
+              IDs de torneios disponíveis: verifique a API em /tournament
+            </p>
+          )}
+          <div className="mt-4">
+            <Link to="/tournaments" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">
+              Ver torneios
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <MainNav />
+      <TournamentHeader tournament={tournament} />
+
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="bg-card border border-border h-auto flex-wrap gap-1 p-1">
+            <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">Visão geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="bracket" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Chave</span>
+            </TabsTrigger>
+            <TabsTrigger value="participants" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Participantes</span>
+              <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">{tournament?.participants.length}</span>
+            </TabsTrigger>
+            <TabsTrigger value="rules" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <ScrollText className="h-4 w-4" />
+              <span className="hidden sm:inline">Regras</span>
+            </TabsTrigger>
+          </TabsList>
+
+           <TabsContent value="overview" className="mt-0">
+             <TournamentOverview tournament={tournament} />
+             <div className="mt-4 text-xs text-muted-foreground">
+               Status: {tournament?.status} | Logged in: {authUser ? 'yes' : 'no'} | ID: {authUser?.id?.substring(0, 8) || 'none'}
+             </div>
+             
+             {/* Status change button for admins/organizers to open registration */}
+             {isOrganizer && tournament?.status === 'draft' && (
+               <div className="mt-6">
+                 <button
+                   onClick={handleOpenRegistration}
+                   disabled={openingRegistration}
+                   className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+                 >
+                   {openingRegistration ? 'Abrindo inscrições...' : 'Abrir inscrições'}
+                 </button>
+               </div>
+             )}
+             
+             {/* Register button for users (non-organizers) */}
+             {authUser && !isOrganizer && tournament?.status !== 'completed' && tournament?.status !== 'cancelled' && (
+               <div className="mt-6">
+                 <button
+                   onClick={handleRegister}
+                   disabled={registering}
+                   className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                 >
+                   <UserPlus className="h-5 w-5" />
+                   {registering ? 'Registrando...' : isRegistered ? 'Inscrito' : 'Registrar no torneio'}
+                 </button>
+               </div>
+             )}
+             
+             {/* Start button for organizers/admins when registration is open */}
+             {isOrganizer && tournament?.status === 'registration' && (
+               <div className="mt-6">
+                 <button
+                   onClick={handleStart}
+                   disabled={starting}
+                   className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
+                 >
+                   <Play className="h-5 w-5" />
+                   {starting ? 'Iniciando...' : 'Iniciar torneio'}
+                 </button>
+               </div>
+             )}
+           </TabsContent>
+
+          <TabsContent value="bracket" className="mt-0">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              {bracketData && bracketData.rounds.length > 0 ? (
+                <BracketView data={bracketData} />
+              ) : (
+                <p className="text-muted-foreground">Chave ainda não gerada. Registre-se e inicie o torneio para ver a chave.</p>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="participants" className="mt-0">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Participantes</h2>
+                <p className="text-sm text-muted-foreground">
+                  {tournament?.participants.length} times inscritos
+                </p>
+              </div>
+              {tournament?.participants.length > 0 ? (
+                <ParticipantList participants={tournament?.participants} />
+              ) : (
+                <p className="text-muted-foreground">Ainda não há participantes</p>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rules" className="mt-0">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Regras do torneio</h2>
+                <p className="text-sm text-muted-foreground">
+                  Leia todas as regras antes de participar
+                </p>
+              </div>
+              <TournamentRules rules={tournament.rules} />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}

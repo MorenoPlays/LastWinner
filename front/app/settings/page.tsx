@@ -148,7 +148,7 @@ export default function SettingsPage() {
       <Link href="/profile" className="mb-4 inline-block text-sm font-semibold text-violet-400 hover:text-violet-300 hover:underline">← Voltar ao perfil</Link>
 
       <div className="glass-card card-hover mb-6 overflow-hidden rounded-2xl">
-        <div className="relative h-20 bg-gradient-to-r from-violet-700/30 to-indigo-700/30" />
+        <div className="relative h-20 bg-linear-to-r from-violet-700/30 to-indigo-700/30" />
         <div className="relative px-6 pt-6 pb-6">
           <h1 className="text-xl font-extrabold tracking-tight text-indigo-300">Definições de Conta</h1>
           <p className="text-sm text-zinc-400">Atualize as suas informações pessoais e avatar</p>
@@ -175,7 +175,7 @@ export default function SettingsPage() {
               ) : avatarUrl ? (
                 <img src={avatarUrl} alt={username} className="rounded-2xl object-cover ring-2 ring-violet-500/30 h-20 w-20" />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40">
                   {username[0]?.toUpperCase() || "?"}
                 </div>
               )}

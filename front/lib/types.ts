@@ -90,6 +90,7 @@ export interface Tournament {
   gameId: string;
   game?: Game;
   title: string;
+  brackets?: Bracket[];
   description?: string;
   format: TournamentFormat;
   mode: TournamentMode;
@@ -122,6 +123,7 @@ export interface Bracket {
   id: string;
   tournamentId: string;
   tournament?: Tournament;
+  matches: Match[];
   type: TournamentFormat;
   createdAt: string;
 }
@@ -148,12 +150,40 @@ export interface Match {
 }
 
 export interface TournamentMessage {
-  id: string;
-  tournamentId: string;
-  userId: string;
-  user?: User;
-  message: string;
-  createdAt: string;
+   id: string;
+   tournamentId: string;
+   userId: string;
+   user?: User;
+   message: string;
+   createdAt: string;
+ }
+
+export interface Post {
+   id: string;
+   userId: string;
+   user?: User;
+   tournamentId?: string;
+   matchId?: string;
+   content: string;
+   imageUrl?: string;
+   videoUrl?: string;
+   likesCount: number;
+   commentsCount: number;
+   isLikedByUser: boolean;
+   createdAt: string;
+   updatedAt: string;
+}
+
+export interface Comment {
+   id: string;
+   postId: string;
+   userId: string;
+   user?: User;
+   content: string;
+   likesCount: number;
+   isLikedByUser: boolean;
+   createdAt: string;
+   updatedAt: string;
 }
 
 export interface AuthResponse {

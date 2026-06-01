@@ -26,12 +26,22 @@ export class GameService {
         },
       },
     });
+    console.log("game: ", game)
     if (!game) throw new NotFoundException('Game not found');
     return game;
   }
 
   async findBySlug(slug: string) {
-    const game = await this.prisma.game.findUnique({ where: { slug } });
+    const game = await this.prisma.game.findUnique({ where: { slug },
+    include: {
+      tournaments: {
+        include: {
+          participants: true,
+        },
+      },
+    }
+    });
+    console.log("game: ", game)
     if (!game) throw new NotFoundException('Game not found');
     return game;
   }
