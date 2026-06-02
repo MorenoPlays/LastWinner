@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-export async function bootstrap() {
+async function bootstrap() {
   const port = process.env.PORT ?? 3001;
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -35,7 +35,5 @@ export async function bootstrap() {
   await app.listen(port);
   console.log(`Server listen in http://localhost:${port}`);
 }
-bootstrap().catch((err) => {
-  console.error('Bootstrap failed:', err);
-  process.exit(1);
-});
+
+bootstrap()
