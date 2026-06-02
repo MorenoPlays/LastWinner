@@ -13,7 +13,7 @@ import {
 import { TournamentParticipantService } from './tournament-participant.service';
 import { CreateTournamentParticipantDto } from './dto/create-tournament-participant.dto';
 import { UpdateTournamentParticipantDto } from './dto/update-tournament-participant.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('tournament-participant')
 export class TournamentParticipantController {
