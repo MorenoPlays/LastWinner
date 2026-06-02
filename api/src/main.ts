@@ -6,11 +6,9 @@ import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
   const port = process.env.PORT ?? 3001;
-  const origin = process.env.CORS_ORIGIN ?? null;
-  if(!origin)
-  {
-    console.log('CORS_ORIGIN is not set. CORS will not be enabled.');
-  }
+  const origin = process.env.CORS_ORIGIN ?? "http://localhost:3000";
+  
+  // console.log(`CORS_ORIGIN is set to ${origin}`);
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: process.env.CORS_ORIGIN,
