@@ -1,3 +1,4 @@
+import React from 'react'
 import { User } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -24,7 +25,7 @@ const colorStyles = [
   { from: '#eab308', to: '#d97706' },
 ]
 
-export function UserAvatar({ 
+export const UserAvatar = React.memo(function UserAvatar({ 
   user, 
   size = 'md', 
   showName = false, 
@@ -78,4 +79,4 @@ export function UserAvatar({
       )}
     </div>
   )
-}
+})

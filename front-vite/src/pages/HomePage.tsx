@@ -109,10 +109,10 @@ export function HomePage() {
   const combinedFeedItems = [...localPosts, ...feedItems]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className=" bg-background">
       <MainNav />
       
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 pb-24 md:pb-6">
         {
             user ? (
               <CreatePost className="mb-6" onPost={handleNewPost} />
@@ -126,8 +126,8 @@ export function HomePage() {
             )
 
           }
-        <div className="flex gap-6">
-          <div className="flex-1 max-w-2xl">
+       <div className="flex flex-col xl:flex-row gap-6">
+          <div className="w-full flex-1 xl:max-w-2xl">
             <section className="mb-8">
               <ClipsGrid
                 clips={featuredClips}
@@ -159,11 +159,19 @@ export function HomePage() {
             )}
           </div>
 
-          <aside className="hidden xl:block w-96 space-y-4">
-            <LiveTournaments tournaments={tournaments} />
-            <TrendingClips clips={trendingClips} />
-            <TrendingUsers users={users} />
-          </aside>
+         <aside className="mt-6 space-y-4 xl:w-96">
+  <div className="hidden lg:block">
+    <LiveTournaments tournaments={tournaments} />
+  </div>
+
+  <div className="hidden md:block">
+    <TrendingClips clips={trendingClips} />
+  </div>
+
+  <div className="hidden lg:block">
+    <TrendingUsers users={users} />
+  </div>
+</aside>
         </div>
       </main>
     </div>

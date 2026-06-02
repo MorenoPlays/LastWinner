@@ -30,9 +30,9 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
               <MainNav />
-    <div className="min-h-screen bg-slate-950/95 text-slate-100 flex items-center justify-center px-4 py-10">
+    <div className="min-h-[100dvh] bg-slate-950/95 text-slate-100 flex items-center justify-center px-4 py-10">
       <div className="grid w-full max-w-5xl gap-8 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-xl lg:grid-cols-[1.15fr_1fr]">
         <div className="hidden flex-col justify-between rounded-[1.75rem] bg-gradient-to-br from-emerald-500 to-cyan-600/95 p-10 text-white shadow-lg lg:flex">
           <div>

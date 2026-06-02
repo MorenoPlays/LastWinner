@@ -153,7 +153,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <main className="container mx-auto px-4 py-8 lg:py-16">
           <div className="h-10 w-32 animate-pulse rounded-lg bg-muted" />
         </main>
@@ -163,7 +163,7 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-8 lg:py-16">
           <div className="rounded-lg border border-border bg-card p-6 text-center">
@@ -243,7 +243,7 @@ export default function ProfilePage() {
   const roleOptions = ['USER', 'ORGANIZER', 'ADMIN'] as const
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
         <MainNav />
       <main className="container mx-auto px-4 py-8 lg:py-12">
         {/* Header Card */}

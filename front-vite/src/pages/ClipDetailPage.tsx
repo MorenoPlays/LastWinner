@@ -49,7 +49,7 @@ export function ClipDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-6">
           <div className="rounded-2xl border border-border/50 bg-card/50 p-6 text-center text-slate-400">
@@ -62,7 +62,7 @@ export function ClipDetailPage() {
 
   if (error || !clip) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-6">
           <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center text-destructive-foreground">
@@ -74,7 +74,7 @@ export function ClipDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       <MainNav />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">

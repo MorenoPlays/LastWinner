@@ -29,7 +29,7 @@ export default function TournamentPage() {
 
   if (tournamentLoading) {
     return (
-      <div className="container mx-auto p-4 flex items-center justify-center min-h-screen">
+      <div className="container mx-auto p-4 flex items-center justify-center min-h-[100dvh]">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="w-8 h-8 animate-spin" />
           <p className="text-gray-600">Carregando torneio...</p>

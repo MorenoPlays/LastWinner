@@ -12,7 +12,7 @@ export function GamesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-6">
           <p className="text-foreground">Carregando jogos...</p>
@@ -34,7 +34,7 @@ export function GamesPage() {
   )
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       <MainNav />
       
       <main className="container mx-auto px-4 py-6">

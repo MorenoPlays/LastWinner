@@ -21,7 +21,7 @@ export function TournamentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-6">
           <p className="text-foreground">Carregando torneios...</p>
@@ -31,11 +31,11 @@ export function TournamentsPage() {
   }
   console.log("tournaments: ", tournaments)
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background">
       <MainNav />
       
-      <main className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+      <main className="container mx-auto px-4 py-6 pb-24 md:pb-6">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Trophy className="h-6 w-6 text-primary" />
@@ -44,20 +44,48 @@ export function TournamentsPage() {
             <p className="text-muted-foreground">Navegue por todos os torneios competitivos</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link to="/tournament/create" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-              <Plus className="h-4 w-4" />
-              Criar
-            </Link>
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+           <Link
+  to="/tournament/create"
+  className="
+    flex items-center justify-center gap-2
+    px-4 py-2
+    rounded-lg
+    bg-primary
+    text-primary-foreground
+    text-sm font-medium
+    hover:bg-primary/90
+    transition-colors
+    sm:w-auto
+    w-full
+  "
+>
+  <Plus className="h-4 w-4" />
+  Criar Torneio
+</Link>
+            <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
-                type="search"
-                placeholder="Buscar torneios..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg bg-card/50 border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
+  type="search"
+  placeholder="Buscar torneios..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="
+    w-full
+    pl-10
+    pr-4
+    py-2
+    rounded-lg
+    bg-card/50
+    border
+    border-border/50
+    text-foreground
+    placeholder:text-muted-foreground
+    focus:outline-none
+    focus:ring-2
+    focus:ring-primary/50
+  "
+/>
             </div>
           </div>
         </div>

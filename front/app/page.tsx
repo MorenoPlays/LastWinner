@@ -37,7 +37,7 @@ export default function HomePage() {
   const games = gamesData || [];
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-[100dvh] bg-slate-950">
       {/* ── Hero Simplificado ─────────────────────────────────── */}
       <div className="bg-linear-to-b from-violet-500/10 to-transparent px-4 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl text-center">

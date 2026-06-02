@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { apiDelete, apiPost } from '@/lib/api'
 import { Post } from '@/lib/types'
 import { UserAvatar } from './user-avatar'
@@ -38,7 +38,7 @@ function formatNumber(num: number): string {
   return num.toString()
 }
 
-export function PostCard({ post, className }: PostCardProps) {
+function PostCardComponent({ post, className }: PostCardProps) {
   const [liked, setLiked] = useState(post.is_liked)
   const [likesCount, setLikesCount] = useState(post.likes_count)
   const [bookmarked, setBookmarked] = useState(post.is_bookmarked)
@@ -222,3 +222,5 @@ export function PostCard({ post, className }: PostCardProps) {
     </article>
   )
 }
+
+export const PostCard = React.memo(PostCardComponent)

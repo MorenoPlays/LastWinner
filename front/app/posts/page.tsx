@@ -19,7 +19,7 @@ export default function PostsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8">
+    <div className="min-h-[100dvh] bg-slate-950 px-4 py-8">
       <Link href="/" className="mb-6 inline-block text-sm font-semibold text-violet-400 hover:text-violet-300">
         ← Voltar ao início
       </Link>

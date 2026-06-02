@@ -336,9 +336,10 @@ export function TournamentPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <MainNav />
-        <div className="container mx-auto px-4 py-6">
+      <div className="min-h-[100dvh] bg-background flex flex-col">
+  <MainNav />
+
+  <div className="pb-24 md:pb-0">
           <p className="text-foreground">Carregando torneio...</p>
         </div>
       </div>
@@ -347,9 +348,10 @@ export function TournamentPage() {
   
   if (!tournament) {
     return (
-      <div className="min-h-screen bg-background">
-        <MainNav />
-        <div className="container mx-auto px-4 py-6">
+      <div className="min-h-[100dvh] bg-background flex flex-col">
+  <MainNav />
+
+  <div className="pb-24 md:pb-0">
           <p className="text-foreground">Torneio não encontrado com ID: {id || 'nenhum'}</p>
           {id && (
             <p className="text-xs text-muted-foreground mt-2">
@@ -367,29 +369,42 @@ export function TournamentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100dvh] bg-background flex flex-col">
       <MainNav />
       <TournamentHeader tournament={tournament} />
 
-      <div className="px-4 sm:px-6 lg:px-8 py-6">
+     <div className="flex-1 pb-24">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-card border border-border h-auto flex-wrap gap-1 p-1">
+          <TabsList
+  className="
+    flex
+    w-full
+    overflow-x-auto
+    whitespace-nowrap
+    bg-card
+    border
+    border-border
+    p-1
+    gap-1
+    scrollbar-hide
+  "
+>
             <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <LayoutGrid className="h-4 w-4" />
-              <span className="hidden sm:inline">Visão geral</span>
+              <span className="text-xs sm:text-sm">Visão geral</span>
             </TabsTrigger>
             <TabsTrigger value="bracket" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Trophy className="h-4 w-4" />
-              <span className="hidden sm:inline">Chave</span>
+              <span className="text-xs sm:text-sm">Chave</span>
             </TabsTrigger>
             <TabsTrigger value="participants" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Participantes</span>
+              <span className="text-xs sm:text-sm">Participantes</span>
               <span className="text-xs bg-muted px-1.5 py-0.5 rounded-full">{tournament?.participants.length}</span>
             </TabsTrigger>
             <TabsTrigger value="rules" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <ScrollText className="h-4 w-4" />
-              <span className="hidden sm:inline">Regras</span>
+              <span className="text-xs sm:text-sm">Regras</span>
             </TabsTrigger>
           </TabsList>
 
@@ -403,10 +418,16 @@ export function TournamentPage() {
              {isOrganizer && tournament?.status === 'draft' && (
                <div className="mt-6">
                  <button
-                   onClick={handleOpenRegistration}
-                   disabled={openingRegistration}
-                   className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
-                 >
+  className="
+  w-full sm:w-auto
+  flex items-center justify-center
+  gap-2
+  px-6 py-3
+  rounded-lg
+  bg-primary
+  text-primary-foreground
+  "
+>
                    {openingRegistration ? 'Abrindo inscrições...' : 'Abrir inscrições'}
                  </button>
                </div>

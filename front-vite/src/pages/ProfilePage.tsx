@@ -42,7 +42,7 @@ function mapUserProfile(apiUser: {
     username: apiUser.username,
     display_name: apiUser.username,
     avatar_url: apiUser.avatarUrl || null,
-    country_code: apiUser.country || null,
+    country: apiUser.country || null,
     email: apiUser.email,
     role: apiUser.role,
     elo: apiUser.elo,
@@ -50,7 +50,6 @@ function mapUserProfile(apiUser: {
     losses: apiUser.losses,
     isVerified: apiUser.isVerified,
     phoneNumber: apiUser.phoneNumber,
-    country: apiUser.country,
     bio: apiUser.bio,
     createdAt: apiUser.createdAt,
     updatedAt: apiUser.updatedAt,
@@ -85,7 +84,7 @@ export function ProfilePage() {
           role: 'USER',
           display_name: 'unknown',
           avatar_url: null,
-          country_code: null,
+          country: null,
         })
       })
       .finally(() => setLoading(false))
@@ -104,7 +103,7 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-8">
           <p className="text-foreground">A carregar...</p>
@@ -115,7 +114,7 @@ export function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-[100dvh] bg-background">
         <MainNav />
         <main className="container mx-auto px-4 py-8">
           <p className="text-foreground">Utilizador não encontrado</p>
@@ -144,32 +143,38 @@ export function ProfilePage() {
   const initial = displayUser.username?.[0]?.toUpperCase() || '?'
 
   return (
-    <div className="min-h-screen bg-background">
-
-      <MainNav />
+    <div className="min-h-[100dvh] bg-background flex flex-col">
+  <MainNav />
 
       {/* <Link to="/" className="mb-4 inline-block text-sm font-semibold text-violet-400 hover:text-violet-300 hover:underline">← Voltar</Link> */}
-
-      <div className="glass-card card-hover mb-6 overflow-hidden rounded-2xl">
-        <div className="relative h-28 bg-linear-to-r from-indigo-700/40 via-violet-700/40 to-indigo-700/40" />
+      <main className="flex-1 overflow-y-auto pb-24">
+       
+       <div className="relative h-40 bg-gradient-to-r from-indigo-600/30 via-purple-600/30 to-cyan-500/20">
+  <div className="absolute inset-0 bg-black/20" />
+</div>
         <div className="relative px-6 pb-6">
-          <div className="-mt-10 mb-3 flex items-end gap-4">
-<div className="relative h-20 w-20 shrink-0">
-               {displayUser.avatar_url ? (
-                 <img src={displayUser.avatar_url} alt={displayUser.username} className="rounded-2xl object-cover ring-4 ring-slate-900 h-20 w-20" />
-               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 text-3xl font-extrabold text-white shadow-lg shadow-indigo-500/40">
-                  {initial}
-                </div>
-              )}
-            </div>
+          <div className="relative -mt-12 flex flex-col sm:flex-row sm:items-end gap-4 px-6">
+<div className="relative h-24 w-24">
+  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 blur-md opacity-40" />
+
+  {displayUser.avatar_url ? (
+    <img
+      src={displayUser.avatar_url}
+      className="relative h-24 w-24 rounded-2xl object-cover ring-4 ring-background"
+    />
+  ) : (
+    <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-4xl font-bold text-white ring-4 ring-background">
+      {initial}
+    </div>
+  )}
+</div>
             <div className="mb-1">
-              <h1 className="text-xl font-extrabold tracking-tight text-zinc-100">{displayUser.username}</h1>
+              <h1 className="text-2xl font-black text-white tracking-tight">{displayUser.username}</h1>
               <p className="text-sm text-zinc-400">{displayUser.email}</p>
             </div>
-            <span className="ml-auto mb-2 rounded-full bg-violet-500/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-300">
-              {displayUser.role}
-            </span>
+            <span className="ml-auto rounded-full bg-violet-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-violet-300">
+  {displayUser.role}
+</span>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-400">
@@ -200,7 +205,7 @@ export function ProfilePage() {
             )}
           </div>
         </div>
-      </div>
+      
 
       <div className="mb-4 border-b border-violet-500/20">
         <div className="flex gap-6">
@@ -330,6 +335,7 @@ export function ProfilePage() {
           )}
         </div>
       )}
+      </main>
     </div>
   )
 }

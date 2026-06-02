@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { FeedItem, Post, Clip } from '@/lib/types'
 import { PostCard } from './post-card'
 import { ClipCard } from './clip-card'
@@ -16,12 +16,12 @@ export function Feed({ items, className }: FeedProps) {
   const [sortBy, setSortBy] = useState<SortOption>('hot')
   const [filterType, setFilterType] = useState<'all' | 'posts' | 'clips'>('all')
 
-  const filteredItems = items.filter(item => {
+  const filteredItems = useMemo(() => items.filter(item => {
     if (filterType === 'all') return true
     return item.type === filterType.slice(0, -1)
-  })
+  }), [items, filterType])
 
-  const sortedItems = [...filteredItems].sort((a, b) => {
+  const sortedItems = useMemo(() => [...filteredItems].sort((a, b) => {
     if (sortBy === 'new') {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     }
@@ -37,13 +37,14 @@ export function Feed({ items, className }: FeedProps) {
     }
     return getScore(b) - getScore(a)
   })
+  , [filteredItems, sortBy])
 
   return (
     <div className={cn('', className)}>
       <div className="flex items-center justify-between mb-6 p-3 rounded-xl bg-card/50 border border-border/50 backdrop-blur-sm">
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setSortBy('hot')}
+            onClick={useCallback(() => setSortBy('hot'), [])}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
               sortBy === 'hot'
@@ -55,7 +56,7 @@ export function Feed({ items, className }: FeedProps) {
             Em alta
           </button>
           <button
-            onClick={() => setSortBy('new')}
+            onClick={useCallback(() => setSortBy('new'), [])}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
               sortBy === 'new'
@@ -67,7 +68,7 @@ export function Feed({ items, className }: FeedProps) {
             Novo
           </button>
           <button
-            onClick={() => setSortBy('top')}
+            onClick={useCallback(() => setSortBy('top'), [])}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
               sortBy === 'top'
@@ -84,7 +85,7 @@ export function Feed({ items, className }: FeedProps) {
           <Filter className="h-4 w-4 text-muted-foreground" />
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as typeof filterType)}
+            onChange={useCallback((e: React.ChangeEvent<HTMLSelectElement>) => setFilterType(e.target.value as typeof filterType), [])}
             className="bg-transparent text-sm text-foreground border-none focus:outline-none cursor-pointer"
           >
             <option value="all">Todas</option>
