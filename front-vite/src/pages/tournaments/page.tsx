@@ -1,6 +1,6 @@
 import { useTournaments } from '@/hooks/useApi'
-import { MainNav } from '../components/main-nav'
-import { TournamentCard } from '../components/tournament-card'
+import { MainNav } from '../../components/main-nav'
+import { TournamentCard } from '../../components/tournament-card'
 import { Trophy, Search, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -10,10 +10,6 @@ export function TournamentsPage() {
   const { tournaments, loading, error } = useTournaments()
   const [search, setSearch] = useState('')
 
-  const displayTournaments = tournaments.length > 0 ? tournaments : [
-    { id: 't1', name: 'VALORANT Champions Cup', slug: 'valorant-champions-cup', description: 'Tournament description', game: { id: 'g1', name: 'VALORANT', slug: 'valorant', icon_url: null, banner_url: null }, format: 'single_elimination' as const, status: 'in_progress' as const, max_participants: 16, current_participants: 16, team_size: 5, prize_pool: 50000, currency: 'USD', registration_start: '', registration_end: '', start_date: '2024-01-20T18:00:00Z', end_date: null, rules: '', banner_url: null, organizer: {} as any, stream_url: null, is_featured: false },
-    { id: 't2', name: 'CS2 Masters', slug: 'cs2-masters', description: 'Tournament description', game: { id: 'g2', name: 'CS2', slug: 'cs2', icon_url: null, banner_url: null }, format: 'single_elimination' as const, status: 'registration' as const, max_participants: 32, current_participants: 12, team_size: 5, prize_pool: 25000, currency: 'USD', registration_start: '', registration_end: '', start_date: '2024-02-01T00:00:00Z', end_date: null, rules: '', banner_url: null, organizer: {} as any, stream_url: null, is_featured: false },
-  ]
 
   // const filteredTournaments = displayTournaments.filter(t => 
   //   t.name.toLowerCase().includes(search.toLowerCase())

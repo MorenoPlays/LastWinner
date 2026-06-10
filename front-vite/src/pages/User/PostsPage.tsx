@@ -1,6 +1,6 @@
-import { MainNav } from '../components/main-nav'
-import { PostCard } from '../social/post-card'
-import { CreatePost } from '../social/create-post'
+import { MainNav } from '../../components/main-nav'
+import { PostCard } from '../../components/social/post-card'
+import { CreatePost } from '../../components/social/create-post'
 import { mockPosts } from '@/lib/mock-data'
 import { MessageSquare } from 'lucide-react'
 

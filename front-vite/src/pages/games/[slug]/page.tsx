@@ -1,49 +1,7 @@
-// "id": "51f5e4ef-bed8-46a6-b44c-1dec805f7816",
-//     "name": "Mortal Kombat 11",
-//     "slug": "MK 11",
-//     "coverUrl": "https://fanatical.imgix.net/product/original/68310a3e-4b93-45dc-b195-643a7ff53d51.jpeg",
-//     "tournaments": [
-//         {
-//             "id": "b71a3b26-ed0b-4508-9b51-1608aa2ebe2d",
-//             "organizerId": "3c8f6823-ff44-4465-8be8-fe1f626e48e0",
-//             "gameId": "51f5e4ef-bed8-46a6-b44c-1dec805f7816",
-//             "title": "Torre do Zango",
-//             "description": "TESTE",
-//             "format": "DOUBLE_ELIMINATION",
-//             "mode": "PRESENTIAL",
-//             "status": "OPEN",
-//             "maxPlayers": 8,
-//             "entryFee": 5000,
-//             "currency": "KZ",
-//             "prizePool": 25000,
-//             "startDate": null,
-//             "endDate": null,
-//             "bannerUrl": "https://fanatical.imgix.net/product/original/68310a3e-4b93-45dc-b195-643a7ff53d51.jpeg",
-//             "createdAt": "2026-05-27T22:10:52.127Z",
-//             "updatedAt": "2026-05-31T15:18:45.567Z",
-//             "participants": [
-//                 {
-//                     "id": "2477b6f4-303b-4eba-ba30-1585f60b16be",
-//                     "tournamentId": "b71a3b26-ed0b-4508-9b51-1608aa2ebe2d",
-//                     "userId": "7bc7f4a7-06e4-42ae-979a-71e1b159837b",
-//                     "status": "CHECKED_IN",
-//                     "paymentProof": null,
-//                     "finalPosition": null,
-//                     "joinedAt": "2026-05-30T23:35:14.820Z"
-//                 },
-//                 {
-//                     "id": "6f7d967f-4f42-43db-92ca-b44728afc401",
-//                     "tournamentId": "b71a3b26-ed0b-4508-9b51-1608aa2ebe2d",
-//                     "userId": "aa77a046-81e1-45b1-8789-1e65041fd1d0",
-//                     "status": "CHECKED_IN",
-//                     "paymentProof": null,
-//                     "finalPosition": null,
-//                     "joinedAt": "2026-05-30T23:42:26.237Z"
-//                 },
 
 import { useParams } from 'react-router-dom'
-import { MainNav } from '../components/main-nav'
-import { TournamentCard } from '../components/tournament-card'
+import { MainNav } from '../../../components/main-nav'
+import { TournamentCard } from '../../../components/tournament-card'
 import { Gamepad2, Trophy, Users, Calendar } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { apiGet } from '@/lib/api'

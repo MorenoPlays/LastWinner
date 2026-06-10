@@ -1,6 +1,6 @@
 import { useUsers } from '@/hooks/useApi'
-import { MainNav } from '../components/main-nav'
-import { UserAvatar } from '../social/user-avatar'
+import { MainNav } from '../../components/main-nav'
+import { UserAvatar } from '../../components/social/user-avatar'
 import { cn } from '@/lib/utils'
 import { Search, Globe, Trophy, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'

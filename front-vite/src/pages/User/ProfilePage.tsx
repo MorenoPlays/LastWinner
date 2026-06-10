@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { MainNav } from '../components/main-nav'
+import { MainNav } from '../../components/main-nav'
 import { useAuth } from '@/hooks/useAuth'
 import { apiGet, apiPut } from '@/lib/api'
 import type { User } from '@/lib/types'

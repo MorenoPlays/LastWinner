@@ -1,6 +1,6 @@
 import { useGames } from '@/hooks/useApi'
-import { MainNav } from '../components/main-nav'
-import { GameCard } from '../components/game-card'
+import { MainNav } from '../../components/main-nav'
+import { GameCard } from '../../components/game-card'
 import { Gamepad2, Search, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'

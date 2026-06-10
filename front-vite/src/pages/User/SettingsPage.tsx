@@ -1,5 +1,5 @@
-import { MainNav } from '../components/main-nav'
-import { Button } from '../ui/button'
+import { MainNav } from '../../components/main-nav'
+import { Button } from '../../ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { LogOut, User, Bell, Shield, Globe } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

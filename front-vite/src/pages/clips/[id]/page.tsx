@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { MainNav } from '../components/main-nav'
-import { mockComments } from '../lib/mock-data'
+import { MainNav } from '../../../components/main-nav'
+import { mockComments } from '../../../lib/mock-data'
 import { Heart, MessageCircle, Share2, Bookmark, Play, Eye, Clock } from 'lucide-react'
-import { cn } from '../lib/utils'
-import { UserAvatar } from '../social/user-avatar'
+import { cn } from '../../../lib/utils'
+import { UserAvatar } from '../../../components/social/user-avatar'
 import { useClip } from '@/hooks/useClips'
 
 export function ClipDetailPage() {

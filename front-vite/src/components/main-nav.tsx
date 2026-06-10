@@ -8,8 +8,9 @@ import {
   Home,
   Gamepad2,
 } from 'lucide-react'
-import { UserAvatar } from '../social/user-avatar'
+import { UserAvatar } from './social/user-avatar'
 import { useAuth } from '@/hooks/useAuth'
+import { useEffect } from 'react'
 
 const navItems = [
   { href: '/', label: 'Início', icon: Home },
@@ -22,6 +23,9 @@ const navItems = [
 export function MainNav() {
   const location = useLocation()
   const { user, loading } = useAuth()
+
+  const admin = user?.role || 'user' // Supondo que a role seja 'admin' ou 'user'
+
 
   return (
     <>
@@ -47,6 +51,9 @@ export function MainNav() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map(item => {
+                if (item.href === '/players'  && admin !== 'ADMIN') {
+                   return null; // Esconde o link de jogadores para usuários não administradores
+                }
                 const isActive =
                   location.pathname === item.href ||
                   (item.href !== '/' &&
@@ -92,7 +99,7 @@ export function MainNav() {
                 >
                   <UserAvatar user={user} size="sm" />
 
-                  <span className="hidden lg:inline text-sm">
+                  <span className="hidden lg:inline text-sm text-foreground" >
                     {user.display_name || user.username}
                   </span>
                 </Link>
@@ -115,6 +122,10 @@ export function MainNav() {
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur md:hidden">
         <div className="flex h-16 items-center justify-around">
           {navItems.map(item => {
+
+            if (item.href === '/players' && admin !== 'admin') {
+              return null; // Esconde o link de jogadores para usuários não administradores
+            }
             const isActive =
               location.pathname === item.href ||
               (item.href !== '/' &&

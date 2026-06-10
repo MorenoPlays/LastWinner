@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { ClipCard } from '../social/clip-card'
-import { MainNav } from '../components/main-nav'
+import { ClipCard } from '../../components/social/clip-card'
+import { MainNav } from '../../components/main-nav'
 import { cn } from '@/lib/utils'
 import { Grid, List } from 'lucide-react'
 import { useClips } from '@/hooks/useClips'

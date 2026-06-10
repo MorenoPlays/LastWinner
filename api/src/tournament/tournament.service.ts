@@ -245,6 +245,11 @@ export class TournamentService {
       data: { status: 'CHECKED_IN' },
     });
 
+    await this.prisma.tournament.update({
+      where: { id },
+      data: { status: 'ONGOING', startDate: new Date() },
+    });
+
     // Return tournament with all data including the newly created matches
     return this.prisma.tournament.findUnique({
       where: { id },

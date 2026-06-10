@@ -1,13 +1,14 @@
 import { useParams } from 'react-router-dom'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
-import { MainNav } from '../components/main-nav'
-import { TournamentHeader } from '../tournament/tournament-header'
-import { TournamentOverview } from '../tournament/tournament-overview'
-import { ParticipantList } from '../tournament/participant-card'
-import { TournamentRules } from '../tournament/tournament-rules'
-import { BracketView } from '../tournament/bracket-view'
-import { MatchScoreModal } from '../tournament/MatchScoreModal'
-import { LayoutGrid, Users, ScrollText, Play, UserPlus, Trophy, Tornado } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../ui/tabs'
+import { MainNav } from '../../../components/main-nav'
+import { TournamentHeader } from '../../../components/tournament/tournament-header'
+import { TournamentOverview } from '../../../components/tournament/tournament-overview'
+import { ParticipantList } from '../../../components/tournament/participant-card'
+import { TournamentRules } from '../../../components/tournament/tournament-rules'
+import { BracketView } from '../../../components/tournament/bracket-view'
+import { MatchScoreModal } from '../../../components/tournament/MatchScoreModal'
+import { Button } from '../../../ui/button'
+import { LayoutGrid, Users, ScrollText, Play, UserPlus, Trophy, Tornado, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { apiGet, apiPost, apiPatch } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
@@ -93,6 +94,10 @@ export function TournamentPage() {
   const [registering, setRegistering] = useState(false)
   const [starting, setStarting] = useState(false)
   const [openingRegistration, setOpeningRegistration] = useState(false)
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [users, setUsers] = useState<{ id: string; username: string; display_name: string }[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const [addingUserId, setAddingUserId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -331,8 +336,67 @@ export function TournamentPage() {
     }
   }
 
+  const handleOpenAddUserModal = async () => {
+    setShowAddUserModal(true)
+    setLoadingUsers(true)
+    try {
+      const token = localStorage.getItem('token')
+      const data = await apiGet<any>('/users', token || undefined)
+      setUsers(Array.isArray(data) ? data : [])
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao carregar usuários.')
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
+
+  const handleAddUserToTournament = async (userId: string) => {
+    if (!id) return
+    setAddingUserId(userId)
+    try {
+      const token = localStorage.getItem('token')
+      await apiPost('/tournament-participant', { tournamentId: id, userId }, token || undefined)
+      setTournament(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          participants: [
+            ...prev.participants,
+            {
+              id: `p-${Date.now()}`,
+              tournament_id: id,
+              user: { id: userId, username: '', display_name: '', avatar_url: null, country_code: null } as any,
+              seed: prev.participants.length + 1,
+              status: 'checked_in',
+              checked_in_at: new Date().toISOString(),
+              wins: 0,
+              losses: 0,
+              is_team: false,
+            } as Participant,
+          ],
+        }
+      })
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao adicionar usuário.')
+    } finally {
+      setAddingUserId(null)
+    }
+  }
+
   const isRegistered = tournament?.participants.some(p => p.user?.id === authUser?.id)
   const isOrganizer = tournament?.organizer?.id === authUser?.id || authUser?.role === 'ADMIN'
+
+  const handleParticipantApproved = (participantId: string) => {
+    setTournament(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        participants: prev.participants.map(p =>
+          p.id === participantId ? { ...p, status: 'checked_in' as const } : p
+        ),
+      }
+    })
+  }
 
   if (loading) {
     return (
@@ -417,7 +481,7 @@ export function TournamentPage() {
              {/* Status change button for admins/organizers to open registration */}
              {isOrganizer && tournament?.status === 'draft' && (
                <div className="mt-6">
-                 <button
+                 <button onClick={handleOpenRegistration}
   className="
   w-full sm:w-auto
   flex items-center justify-center
@@ -473,15 +537,24 @@ export function TournamentPage() {
           </TabsContent>
 
           <TabsContent value="participants" className="mt-0">
+            {/* adicionar participantes  */}
             <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold text-foreground">Participantes</h2>
-                <p className="text-sm text-muted-foreground">
-                  {tournament?.participants.length} times inscritos
-                </p>
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">Participantes</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {tournament?.participants.length} times inscritos
+                  </p>
+                </div>
+                {isOrganizer && (
+                  <Button onClick={handleOpenAddUserModal} className="w-full sm:w-auto">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Adicionar usuário
+                  </Button>
+                )}
               </div>
               {tournament?.participants.length > 0 ? (
-                <ParticipantList participants={tournament?.participants} />
+                <ParticipantList participants={tournament?.participants} onApprove={handleParticipantApproved} />
               ) : (
                 <p className="text-muted-foreground">Ainda não há participantes</p>
               )}
@@ -501,6 +574,41 @@ export function TournamentPage() {
           </TabsContent>
         </Tabs>
       </div>
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">Adicionar usuário ao torneio</h3>
+              <button onClick={() => setShowAddUserModal(false)} className="rounded-lg p-1 text-muted-foreground hover:bg-muted">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {loadingUsers ? (
+              <p className="text-sm text-muted-foreground">Carregando usuários...</p>
+            ) : (
+              <div className="max-h-80 space-y-2 overflow-y-auto">
+                {users.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Nenhum usuário encontrado.</p>
+                )}
+                {users
+                  .filter(u => !tournament?.participants.some(p => p.user?.id === u.id))
+                  .map(u => (
+                    <div key={u.id} className="flex items-center justify-between rounded-lg border border-border/50 bg-card/50 p-3">
+                      <span className="text-sm font-medium text-foreground">{u.display_name || u.username}</span>
+                      <Button
+                        size="sm"
+                        onClick={() => handleAddUserToTournament(u.id)}
+                        disabled={addingUserId === u.id}
+                      >
+                        {addingUserId === u.id ? 'Adicionando...' : 'Adicionar'}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

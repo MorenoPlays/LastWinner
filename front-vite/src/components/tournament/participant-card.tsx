@@ -4,23 +4,33 @@ import { cn } from '@/lib/utils'
 import { Check, UserPlus } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { apiPut } from '@/lib/api'
+import { useState } from 'react'
 
 interface ParticipantCardProps {
   participants: Participant[]
   className?: string
+  onApprove?: (participantId: string) => void
 }
 
-export function ParticipantList({ participants, className }: ParticipantCardProps) {
+export function ParticipantList({ participants, className, onApprove }: ParticipantCardProps) {
   const { user: authUser } = useAuth()
+  const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
 
   const handleApprove = async (participantId: string) => {
+    setLoadingIds(prev => new Set(prev).add(participantId))
     try {
       const token = localStorage.getItem('token')
       await apiPut(`/tournament-participant/${participantId}/approve`, {}, token || undefined)
+      onApprove?.(participantId)
       // Refresh the participant list by triggering a re-fetch in the parent component
-      window.location.reload()
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Erro ao aprovar participação.')
+    } finally {
+      setLoadingIds(prev => {
+        const next = new Set(prev)
+        next.delete(participantId)
+        return next
+      })
     }
   }
 
@@ -59,7 +69,8 @@ export function ParticipantList({ participants, className }: ParticipantCardProp
               {authUser && (authUser.role === 'ADMIN' || authUser.id === participant.tournament_id) && participant.status === 'pending' && (
                 <button
                   onClick={() => handleApprove(participant.id)}
-                  className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white text-xs font-medium hover:bg-green-600"
+                  disabled={loadingIds.has(participant.id)}
+                  className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white text-xs font-medium hover:bg-green-600 disabled:opacity-70"
                 >
                   <Check className="h-3 w-3" />
                   Aprovar

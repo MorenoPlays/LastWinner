@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { MainNav } from '../components/main-nav'
-import { Button } from '../ui/button'
+import { MainNav } from '../../../components/main-nav'
+import { Button } from '../../../ui/button'
 import { Trophy } from 'lucide-react'
 import { apiPost } from '@/lib/api'
 import { useGames } from '@/hooks/useApi'
