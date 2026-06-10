@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { MainNav } from '../../components/main-nav'
-import { Button } from '../../ui/button'
+import { MainNav } from '../../../components/main-nav'
+import { Button } from '../../../ui/button'
 import { Gamepad2 } from 'lucide-react'
 import { apiPost } from '@/lib/api'
 

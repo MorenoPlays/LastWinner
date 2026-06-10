@@ -14,7 +14,6 @@ import { apiGet, apiPost, apiPatch, apiSetMatchWinner } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 import { Link } from 'react-router-dom'
 import type { Tournament, Participant, BracketData, User, Match } from '@/lib/types'
-import { finished } from 'stream'
 
 interface ApiUser {
   id: string
