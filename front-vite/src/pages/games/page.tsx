@@ -45,7 +45,7 @@ export function GamesPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user?.role === 'ADMIN' || user?.role === 'organizer' ? (
+            {user?.role === 'ADMIN' || user?.role === 'ORGANIZER' ? (
               <Link to="/games/create" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
                 <Plus className="h-4 w-4" />
                 Adicionar jogo
