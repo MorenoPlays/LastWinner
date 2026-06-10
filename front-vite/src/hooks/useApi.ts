@@ -208,6 +208,9 @@ interface ApiTournament {
   teamSize?: number
   prizePool?: number
   currency?: string
+  entryFee?: number
+  registrationStart?: string
+  registrationEnd?: string
   startDate?: string
   endDate?: string
   createdAt?: string
@@ -336,9 +339,11 @@ export function useTournaments() {
           },
           format: mapTournamentFormat(t.format),
           status: mapTournamentStatus(t.status),
+          
           maxPlayers: t.maxPlayers || 16,
           participants: t.participants || [],
           team_size: t.teamSize || 5,
+          entryFee: t.entryFee || null,
           prizePool: t.prizePool || null,
           currency: t.currency || 'USD',
           registration_start: '',

@@ -33,7 +33,12 @@ export function TournamentCard({ tournament, className }: TournamentCardProps) {
           'px-3 py-1 rounded-full text-xs font-medium text-white uppercase',
           statusColors[tournament.status]
         )}>
-          {tournament.status.replace('_', ' ')}
+          {/* tranformar os status em portugues */}
+          {tournament.status === 'draft' && 'Rascunho'}
+          {tournament.status === 'registration' && 'Em Inscrições'}
+          {tournament.status === 'in_progress' && 'Em Andamento'}
+          {tournament.status === 'completed' && 'Concluído'}
+          {tournament.status === 'cancelled' && 'Cancelado'}
         </span>
       </div>
 
@@ -42,13 +47,18 @@ export function TournamentCard({ tournament, className }: TournamentCardProps) {
       <div className="space-y-2 text-sm">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>{tournament.participants.length}/{tournament.maxPlayers} times</span>
+          <span>{tournament.participants.length}/{tournament.maxPlayers} participantes</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4" />
           <span>{new Date(tournament.startDate).toLocaleDateString()}</span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
+          <Trophy className="h-4 w-4" />
+          <span>{tournament.entryFee ? `${tournament.entryFee?.toLocaleString()} ${tournament.currency}` : 'Grátis'}</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Trophy className="h-4 w-4" />
           <span>{tournament.prizePool ? `${tournament.prizePool?.toLocaleString()} ${tournament.currency}` : 'Grátis'}</span>
         </div>
       </div>

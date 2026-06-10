@@ -13,20 +13,6 @@ export function TournamentsPage() {
   const [search, setSearch] = useState('')
   const {user, loading: authLoading} = useAuth()
 
-  // if (authLoading) {
-  //   return (
-  //     <div className="min-h-[100dvh] bg-background">
-  //       <MainNav />
-  //       <main className="container mx-auto px-4 py-6">
-  //         <p className="text-foreground">Carregando usuário...</p>
-  //       </main>
-  //     </div>
-  //   )
-  // }
-
-  // const filteredTournaments = displayTournaments.filter(t => 
-  //   t.name.toLowerCase().includes(search.toLowerCase())
-  // )
 
   if (loading) {
     return (
