@@ -2,13 +2,14 @@ import { useGames } from '@/hooks/useApi'
 import { MainNav } from '../../components/main-nav'
 import { GameCard } from '../../components/game-card'
 import { Gamepad2, Search, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { use, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { Game } from '@/lib/types'
+import { useAuth } from '@/hooks/useAuth'
 
 export function GamesPage() {
   const { games, loading, error } = useGames()
   const [search, setSearch] = useState('')
+  const {user, loading: authLoading} = useAuth()
 
   if (loading) {
     return (
@@ -48,10 +49,12 @@ export function GamesPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link to="/games/create" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-              <Plus className="h-4 w-4" />
-              Adicionar jogo
-            </Link>
+            {user?.role === 'admin' || user?.role === 'organizer' ? (
+              <Link to="/games/create" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+                <Plus className="h-4 w-4" />
+                Adicionar jogo
+              </Link>
+            ) : null}
 
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

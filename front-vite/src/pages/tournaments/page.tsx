@@ -4,12 +4,25 @@ import { TournamentCard } from '../../components/tournament-card'
 import { Trophy, Search, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { Tournament } from '@/lib/types'
+import { useAuth } from '@/hooks/useAuth'
+
+
 
 export function TournamentsPage() {
   const { tournaments, loading, error } = useTournaments()
   const [search, setSearch] = useState('')
+  const {user, loading: authLoading} = useAuth()
 
+  // if (authLoading) {
+  //   return (
+  //     <div className="min-h-[100dvh] bg-background">
+  //       <MainNav />
+  //       <main className="container mx-auto px-4 py-6">
+  //         <p className="text-foreground">Carregando usuário...</p>
+  //       </main>
+  //     </div>
+  //   )
+  // }
 
   // const filteredTournaments = displayTournaments.filter(t => 
   //   t.name.toLowerCase().includes(search.toLowerCase())
@@ -25,7 +38,7 @@ export function TournamentsPage() {
       </div>
     )
   }
-  console.log("tournaments: ", tournaments)
+  //console.log("tournaments: ", tournaments)
   return (
     <div className="min-h-[100dvh] bg-background">
       <MainNav />
@@ -41,11 +54,12 @@ export function TournamentsPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-           <Link
-  to="/tournament/create"
-  className="
-    flex items-center justify-center gap-2
-    px-4 py-2
+            {user?.role === 'admin' || user?.role === 'organizer' ? (
+              <Link
+                to="/tournament/create"
+                className="
+                  flex items-center justify-center gap-2
+                  px-4 py-2
     rounded-lg
     bg-primary
     text-primary-foreground
@@ -59,6 +73,7 @@ export function TournamentsPage() {
   <Plus className="h-4 w-4" />
   Criar Torneio
 </Link>
+) : null}
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
