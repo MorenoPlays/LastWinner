@@ -40,7 +40,7 @@ export function TournamentsPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            {user?.role === 'admin' || user?.role === 'organizer' ? (
+            {user?.role === 'ADMIN' || user?.role === 'organizer' ? (
               <Link
                 to="/tournament/create"
                 className="

@@ -142,7 +142,7 @@ function PostCardComponent({ post, className }: PostCardProps) {
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-foreground flex items-center gap-2">
-                {post.tournament.name}
+                {post.tournament.title}
                 <ExternalLink className="h-4 w-4 text-muted-foreground" />
               </h4>
               <p className="text-sm text-muted-foreground">
