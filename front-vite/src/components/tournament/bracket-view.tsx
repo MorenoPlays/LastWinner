@@ -8,6 +8,7 @@ import { MatchCard } from './match-card'
 interface BracketViewProps {
   data: BracketData
   className?: string
+  onMatchClick?: (match: Match) => void
 }
 
 function MatchConnectorStub({ isLast }: { isLast: boolean }) {
@@ -69,12 +70,14 @@ function RoundColumn({
   roundIndex,
   totalRounds,
   rowCount,
+  onMatchClick,
 }: {
   name: string
   matches: Match[]
   roundIndex: number
   totalRounds: number
   rowCount: number
+  onMatchClick?: (match: Match) => void
 }) {
   const isLastRound = roundIndex === totalRounds - 1
   const rowHeight = '10rem'
@@ -113,7 +116,7 @@ function RoundColumn({
               gridRowEnd: `span 1`,
             }}
           >
-            <MatchCard match={match} compact className="w-52 sm:w-56" />
+            <MatchCard match={match} compact className="w-52 sm:w-56" onClick={() => onMatchClick?.(match)} />
 
             <MatchConnectorStub isLast={isLastRound} />
           </div>
@@ -123,7 +126,7 @@ function RoundColumn({
   )
 }
 
-export function BracketView({ data, className }: BracketViewProps) {
+export function BracketView({ data, className, onMatchClick }: BracketViewProps) {
   const { rounds } = data
   const rowCount = Math.max(1, rounds[0]?.matches.length * 2 - 1)
 
@@ -141,6 +144,7 @@ export function BracketView({ data, className }: BracketViewProps) {
               roundIndex={roundIndex}
               totalRounds={rounds.length}
               rowCount={rowCount}
+              onMatchClick={onMatchClick}
             />
 
             {roundIndex < rounds.length - 1 && (

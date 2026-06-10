@@ -18,6 +18,7 @@ export function TournamentOverview({
   tournament,
   className,
 }: TournamentOverviewProps) {
+  console.log('TournamentOverview renderizado com:', tournament)
   return (
     <div className={cn('space-y-6', className)}>
       {/* GRID RESPONSIVO */}
@@ -35,12 +36,33 @@ export function TournamentOverview({
 
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Prize Pool
+                prêmio
               </p>
               <p className="text-lg sm:text-xl font-bold text-foreground">
                 {tournament.prizePool
                   ? `${tournament.prizePool.toLocaleString()} ${tournament.currency}`
                   : 'Free'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* preco de inscricao */}
+        <div className="p-3 sm:p-4 rounded-xl border border-border/50 bg-card/50">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(77, 204, 112, 0.2)' }}
+            >
+              <Trophy className="h-5 w-5" style={{ color: '#4dcc70' }} />
+            </div>
+
+            <div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Preço de Inscrição
+              </p>
+              <p className="text-lg sm:text-xl font-bold text-foreground">
+                {(tournament.entryFee ? tournament.entryFee.toLocaleString() + ' ' + tournament.currency : 'Grátis')}
               </p>
             </div>
           </div>
@@ -58,7 +80,7 @@ export function TournamentOverview({
 
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Participants
+                Participantes
               </p>
               <p className="text-lg sm:text-xl font-bold text-foreground">
                 {tournament.participants.length}
@@ -79,7 +101,7 @@ export function TournamentOverview({
 
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Start Date
+                Data de Início
               </p>
               <p className="text-lg sm:text-xl font-bold text-foreground">
                 {formatDate(tournament.startDate)}

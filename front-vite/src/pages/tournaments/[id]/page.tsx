@@ -10,10 +10,11 @@ import { MatchScoreModal } from '../../../components/tournament/MatchScoreModal'
 import { Button } from '../../../ui/button'
 import { LayoutGrid, Users, ScrollText, Play, UserPlus, Trophy, Tornado, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { apiGet, apiPost, apiPatch } from '@/lib/api'
+import { apiGet, apiPost, apiPatch, apiSetMatchWinner } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 import { Link } from 'react-router-dom'
 import type { Tournament, Participant, BracketData, User, Match } from '@/lib/types'
+import { finished } from 'stream'
 
 interface ApiUser {
   id: string
@@ -28,6 +29,7 @@ interface ApiTournament {
   id: string
   title: string
   description?: string
+  entryFee?: number
   gameId: string
   format?: string
   status?: string
@@ -98,17 +100,21 @@ export function TournamentPage() {
   const [users, setUsers] = useState<{ id: string; username: string; display_name: string }[]>([])
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [addingUserId, setAddingUserId] = useState<string | null>(null)
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null)
+  const [showWinnerModal, setShowWinnerModal] = useState(false)
 
   useEffect(() => {
     if (!id) return
 
     apiGet<ApiTournament>(`/tournament/${id}`)
       .then(apiTournament => {
+        console.log('API Tournament data:', apiTournament)
         const mapped: Tournament = {
           id: apiTournament.id,
           title: apiTournament.title || 'Tournament',
           slug: apiTournament.title?.toLowerCase().replace(/\s+/g, '-') || 'tournament',
           description: apiTournament.description || '',
+          entryFee: apiTournament.entryFee || null,
           game: {
             id: apiTournament.gameId || 'g1',
             name: 'Game',
@@ -383,6 +389,133 @@ export function TournamentPage() {
     }
   }
 
+  const handleOpenMatchWinnerModal = (match: Match) => {
+    setSelectedMatch(match)
+    setShowWinnerModal(true)
+  }
+
+  // const handleSetMatchWinner = async (winnerId: string) => {
+  //   if (!selectedMatch) return
+  //   try {
+  //     const token = localStorage.getItem('token')
+  //     await apiSetMatchWinner(selectedMatch.id, winnerId, token || undefined)
+  //     setTournament(prevTournament => {
+  //       if (!prevTournament || !prevTournament.brackets || prevTournament.brackets.length === 0) return prevTournament
+  //       const updatedBrackets = prevTournament.brackets.map(bracket => ({
+  //         ...bracket,
+  //         matches: bracket.matches.map(match => {
+  //           if (match.id !== selectedMatch.id) return match
+  //           const nextWinner =
+  //             match.participant1?.id === winnerId
+  //               ? { ...match.participant1 }
+  //               : match.participant2?.id === winnerId
+  //                 ? { ...match.participant2 }
+  //                 : match.winner
+  //           const updatedMatch = {
+  //             ...match,
+  //             winner: nextWinner || match.winner,
+  //             status: 'completed' as const,
+  //           }
+  //           return updatedMatch
+  //         }),
+  //       }))
+  //       return {
+  //         ...prevTournament,
+  //         brackets: updatedBrackets,
+  //       }
+  //     })
+  //     recalculateBracket()
+  //     setShowWinnerModal(false)
+  //   } catch (err: unknown) {
+  //     alert(err instanceof Error ? err.message : 'Erro ao definir vencedor.')
+  //   }
+  // }
+
+  const recalculateBracket = () => {
+    if (!tournament?.id) return
+    apiGet<ApiTournament>(`/tournament/${tournament.id}`)
+      .then(apiTournament => {
+        if (!apiTournament.brackets || apiTournament.brackets.length === 0) {
+          setBracketData(null)
+          return
+        }
+        const bracket = apiTournament.brackets[0]
+        const matchesByRound: Record<number, Match[]> = {}
+        bracket.matches.forEach((match: any) => {
+          const roundNum = match.roundNumber || 1
+          if (!matchesByRound[roundNum]) matchesByRound[roundNum] = []
+          const winnerParticipant =
+            match.winnerId === match.player1?.id
+              ? {
+                  id: match.player1.id,
+                  user: {
+                    ...mapUser(match.player1),
+                    wins: 0,
+                    losses: 0,
+                  },
+                } as any
+              : match.winnerId === match.player2?.id
+                ? {
+                    id: match.player2.id,
+                    user: {
+                      ...mapUser(match.player2),
+                      wins: 0,
+                      losses: 0,
+                    },
+                  } as any
+                : null
+          matchesByRound[roundNum].push({
+            id: match.id,
+            tournament_id: apiTournament.id,
+            round: match.roundNumber,
+            match_number: match.matchNumber,
+            bracket_position: '',
+            participant1: match.player1
+              ? {
+                  id: match.player1.id,
+                  user: {
+                    ...mapUser(match.player1),
+                    wins: 0,
+                    losses: 0,
+                  },
+                } as any
+              : null,
+            participant2: match.player2
+              ? {
+                  id: match.player2.id,
+                  user: {
+                    ...mapUser(match.player2),
+                    wins: 0,
+                    losses: 0,
+                  },
+                } as any
+              : null,
+            winner: winnerParticipant,
+            score1: match.score1,
+            score2: match.score2,
+            status: match.status?.toLowerCase() || 'pending',
+            scheduled_time: null,
+            started_at: null,
+            completed_at: null,
+            stream_url: null,
+            vod_url: null,
+            next_match_id: match.nextMatchId,
+            is_losers_bracket: false,
+          })
+        })
+        const rounds = Object.keys(matchesByRound)
+          .map(Number)
+          .sort((a, b) => a - b)
+          .map(roundNum => ({
+            round: roundNum,
+            name: `Round ${roundNum}`,
+            matches: matchesByRound[roundNum],
+          }))
+        setBracketData({ format: mapTournamentFormat(apiTournament.format), rounds })
+      })
+      .catch(() => {})
+  }
+
   const isRegistered = tournament?.participants.some(p => p.user?.id === authUser?.id)
   const isOrganizer = tournament?.organizer?.id === authUser?.id || authUser?.role === 'ADMIN'
 
@@ -396,6 +529,27 @@ export function TournamentPage() {
         ),
       }
     })
+  }
+
+  const finishedTornament = async () => {
+    if (!id) return
+    try {      const token = localStorage.getItem('token')
+      await apiPost(`/tournament/${id}/finish`, {}, token || undefined) 
+      window.location.reload()
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Erro ao finalizar torneio.')
+    }
+  }
+
+
+  const handleMatchClick = (match: Match) => {
+    if(authUser?.role !== 'ADMIN' && !isOrganizer) return ;
+    setSelectedMatch(match)
+    setShowWinnerModal(true)
+  }
+
+  const handleWinnerSuccess = () => {
+    recalculateBracket()
   }
 
   if (loading) {
@@ -496,7 +650,22 @@ export function TournamentPage() {
                  </button>
                </div>
              )}
-             
+             {isOrganizer && tournament?.status === 'in_progress' && (
+               <div className="mt-6">
+                 <button  className="
+                  w-full sm:w-auto
+                  flex items-center justify-center
+                  gap-2
+                  px-6 py-3
+                  rounded-lg
+                  bg-primary
+                  text-primary-foreground
+                  " onClick={finishedTornament}>
+                    Finalizar torneio
+                  </button>
+               </div>
+             )}
+
              {/* Register button for users (non-organizers) */}
              {authUser && !isOrganizer && tournament?.status !== 'completed' && tournament?.status !== 'cancelled' && (
                <div className="mt-6">
@@ -526,27 +695,27 @@ export function TournamentPage() {
              )}
            </TabsContent>
 
-          <TabsContent value="bracket" className="mt-0">
-            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
-              {bracketData && bracketData.rounds.length > 0 ? (
-                <BracketView data={bracketData} />
-              ) : (
-                <p className="text-muted-foreground">Chave ainda não gerada. Registre-se e inicie o torneio para ver a chave.</p>
-              )}
-            </div>
-          </TabsContent>
+           <TabsContent value="bracket" className="mt-0">
+             <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+               {bracketData && bracketData.rounds.length > 0 ? (
+                 <BracketView data={bracketData} onMatchClick={handleMatchClick} />
+               ) : (
+                 <p className="text-muted-foreground">Chave ainda não gerada. Registre-se e inicie o torneio para ver a chave.</p>
+               )}
+             </div>
+            </TabsContent>
 
-          <TabsContent value="participants" className="mt-0">
+           <TabsContent value="participants" className="mt-0">
             {/* adicionar participantes  */}
             <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">Participantes</h2>
                   <p className="text-sm text-muted-foreground">
-                    {tournament?.participants.length} times inscritos
+                    {tournament?.participants.length} participantes inscritos
                   </p>
                 </div>
-                {isOrganizer && (
+                {isOrganizer && tournament.status === "registration" || tournament.status === "draft" && (
                   <Button onClick={handleOpenAddUserModal} className="w-full sm:w-auto">
                     <UserPlus className="h-4 w-4 mr-2" />
                     Adicionar usuário
@@ -608,6 +777,14 @@ export function TournamentPage() {
             )}
           </div>
         </div>
+      )}
+      {showWinnerModal  && (
+        <MatchScoreModal
+          match={selectedMatch!}
+          isOpen={showWinnerModal}
+          onClose={() => setShowWinnerModal(false)}
+          onSuccess={handleWinnerSuccess}
+        />
       )}
     </div>
   )

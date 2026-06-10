@@ -25,7 +25,7 @@ export function MatchScoreModal({ match, isOpen, onClose, onSuccess }: MatchScor
 
     setLoading(true);
     try {
-      await apiSetMatchWinner(match.id, selectedWinnerId);
+      await apiSetMatchWinner(match.id, selectedWinnerId, localStorage.getItem('token') || undefined);
       onSuccess();
       onClose();
       setSelectedWinnerId('');

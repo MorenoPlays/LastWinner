@@ -106,6 +106,7 @@ export interface Tournament {
 participants: any[]
   team_size: number
   prizePool: number | null
+  entryFee: number | null
   currency: string
   registration_start: string
   registration_end: string

@@ -34,16 +34,20 @@ function formatPrizePool(amount: number, currency: string): string {
 export function TournamentHeader({ tournament, className }: TournamentHeaderProps) {
   return (
     <div className={cn('relative', className)}>
+      {/* Header background imagem do torneio */}
       <div className="relative h-64 rounded-b-3xl overflow-hidden" style={{ 
-        background: 'linear-gradient(135deg, rgba(61, 209, 247, 0.2), rgba(188, 77, 255, 0.2))'
+        backgroundImage: `url(${tournament.bannerUrl || '/default-tournament-banner.jpg'})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
       }}>
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0d0d14, transparent)' }}></div>
         
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <div className="flex items-start gap-4">
             <div className="h-20 w-20 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ 
-              background: 'linear-gradient(135deg, #3dd1f7, #bc4dff)'
+              background: "black",
             }}>
+              {/*  avatar do organizador */}
               <Trophy className="h-10 w-10 text-white" />
             </div>
             
@@ -59,7 +63,7 @@ export function TournamentHeader({ tournament, className }: TournamentHeaderProp
                 
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  <span>{tournament.participants.length}/{tournament.maxPlayers} teams</span>
+                  <span>{tournament.participants.length}/{tournament.maxPlayers} participantes</span>
                 </div>
                 
                 <div className="flex items-center gap-2">
